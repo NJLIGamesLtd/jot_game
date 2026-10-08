@@ -134,12 +134,15 @@ compared game output fingerprints match.
 | Final matched build p99 / maximum | 40.402 / 48.734 ms | 15.060 / 18.826 ms | Instrumented Mac profile |
 | Final matched raster p95 / maximum | 26.607 / 35.297 ms | 23.789 / 34.558 ms | Raster still exceeds both budgets; repeated observations do not establish a GPU improvement |
 | Final matched total-span p95 / p99 | 42.811 / 59.088 ms | 26.097 / 40.022 ms | Pipeline elapsed span on shared desktop |
-| Profile startup observation | 404.069 ms | 285.610 ms | One warm-host launch per run; no general startup improvement established |
+| In-app game initialization observation | 404.069 ms | 285.610 ms | One profile observation per run; excludes process/test-binding launch |
 
 The profile harness uses six continuous touch drags and four human/computer
 turns through the actual C++ worker and full dictionary. It excludes startup
-frames from its warm frame sample. Startup observations are single warm-host
-process launches, not cold installed-device startup measurements. It uses
+frames from its warm frame sample. The `startup_us` timer starts inside the
+running widget test, immediately before constructing the controller, and ends
+when engine initialization is no longer busy. It measures in-app game
+initialization once per run, excluding process/test-binding launch; no cold
+installed-device startup improvement is established. It uses
 in-memory preferences to avoid overwriting a player's save, so it does not measure
 physical preference disk I/O. The live test binding also draws its fading pointer
 overlay; these are instrumented, synthetically pumped gesture frames, not direct

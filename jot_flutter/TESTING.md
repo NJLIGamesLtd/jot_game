@@ -140,7 +140,7 @@ flutter drive -d macos --profile \
   --driver test_driver/performance_driver.dart
 ```
 
-It writes `build/integration_response_data.json`: startup observation, frame
+It writes `build/integration_response_data.json`: in-app initialization observation, frame
 build/raster/total percentiles, command round trips and a separate JSON decode
 calibration. Preferences are in memory to protect player saves; this does not
 measure real preference disk latency. Frame samples are bounded at 10,000.
