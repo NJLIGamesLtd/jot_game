@@ -96,6 +96,46 @@ Computer search has a work budget and reports truncation. If a bounded search
 finds no move, the computer performs a complete search before deciding to pass.
 New game explicitly replaces only this app's current local save.
 
+## GitHub Actions
+
+The repository has three workflows under the root `.github/workflows/` directory:
+
+| Workflow | Runs | Output |
+| --- | --- | --- |
+| Continuous Integration | Pushes, pull requests and manual runs | Unit, regression, integration, Chrome UI and coverage checks; C++ Release tests on Linux, Windows and macOS, plus Linux ASan/UBSan; coverage reports |
+| Build Web | Pushes to `main`, pull requests targeting `main` and manual runs | Complete Flutter/C++ WebAssembly release in `jot-web-release.tar.gz`, with SHA256 checksum |
+| Build Production | Pushes to `main`, `v*` tags, pull requests targeting `main` and manual runs | Separate Android, iOS, macOS, Windows and Linux Release artifacts |
+
+Open the repository's **Actions** tab, choose a workflow and select **Run workflow**
+for a manual build. Successful builds expose downloads under the run's **Artifacts**
+section. The web workflow packages the existing Pages worker and routing files;
+it builds the site and does not deploy it. Deployment instructions remain in
+`DEPLOYMENT.md`.
+
+Native build versions use `pubspec.yaml` for the version name and the production
+workflow's run number for the build number. Artifacts include a commit/ref
+manifest and SHA256 checksums. Windows includes its Visual C++ runtime DLLs;
+Linux preserves executable permissions, and Apple archives preserve framework
+symlinks. macOS builds support macOS 13 or later and include both Apple Silicon
+and Intel code, matching the native-assets minimum in the pinned Flutter SDK.
+
+Android builds are unsigned until a release key is configured. Set all four
+repository Actions secrets to obtain signed APK and AAB artifacts on `main`,
+tags or manual runs: `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
+`ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`. Pull requests always build
+unsigned artifacts. The keystore is the base64 encoding of your existing upload
+or release key; partial configuration fails rather than using a debug key.
+Local signing uses the ignored `android/key.properties` file with `storeFile`,
+`storePassword`, `keyAlias` and `keyPassword` properties. Unsigned APKs require
+signing before installation.
+
+iOS produces an **unsigned device `.xcarchive`**, not an installable IPA.
+Apple signing/provisioning and IPA export remain necessary for distribution.
+macOS does not perform Developer ID signing or notarization. These workflows
+compile production Release builds; store publishing is a separate step. See
+[Flutter's Android signing guide](https://docs.flutter.dev/deployment/android#sign-the-app)
+and [iOS release guide](https://docs.flutter.dev/deployment/ios).
+
 ## Verify
 
 For the complete unit, regression, integration and UI suites with enforced 100%
