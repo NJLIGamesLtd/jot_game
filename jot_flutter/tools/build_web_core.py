@@ -17,5 +17,6 @@ subprocess.run([
     '-sENVIRONMENT=web,worker,node', '-sDISABLE_EXCEPTION_CATCHING=0',
     '-sEXPORTED_FUNCTIONS=["_jot_create","_jot_execute","_jot_destroy"]',
     '-sEXPORTED_RUNTIME_METHODS=["cwrap"]',
-    '-sSTACK_SIZE=2097152', '-sINITIAL_MEMORY=33554432',
+    # Compact trie fits a smaller initial heap; growth handles larger searches.
+    '-sSTACK_SIZE=2097152', '-sINITIAL_MEMORY=16777216',
 ], check=True, cwd=root)
