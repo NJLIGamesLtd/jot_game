@@ -172,9 +172,10 @@ The C++ tests cover bonuses, crossings, blanks, bingo, illegal move atomicity,
 copy isolation, passes/endgame, restore corruption, dictionary completeness,
 exhaustive small-dictionary AI comparisons, and complete computer self-play.
 Flutter tests exercise the actual native isolate/FFI transport and responsive UI.
-The [CI workflow](../.github/workflows/jot_flutter.yml) is located at the parent
-project root. It builds the core on three operating systems and has Flutter build
-jobs for Android, iOS, macOS, Windows, Linux, and web.
+The [Continuous Integration workflow](../.github/workflows/continuous-integration.yml)
+is located at the parent project root. Separate [web](../.github/workflows/build-web.yml)
+and [production](../.github/workflows/build-production.yml) workflows build
+Android, iOS, macOS, Windows, Linux, and web artifacts.
 
 ## Scope
 
