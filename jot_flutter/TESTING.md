@@ -20,7 +20,7 @@ CHROME_EXECUTABLE=/path/to/google-chrome python3 tools/run_tests.py --flutter /p
 
 The verification command does not contact production
 or deploy anything. CI runs this sequence and uploads the reports alongside the
-existing six-platform build matrix.
+separate web and five-platform native build workflows.
 
 ## Suites
 
@@ -43,12 +43,18 @@ engine. They do not substitute for testing an APK on physical Android hardware.
 
 `test/platform_drag_test.dart` exercises drag placement and rejection across
 Android, iOS, Windows, macOS and Linux platform settings and phone, tablet and
-desktop layouts. The six-target CI matrix requires this file and runs it as part
-of the full native widget suite. Its web job additionally compiles and runs this
+desktop layouts. Continuous Integration requires this file in the full native
+widget suite. Every native Release build also runs it with the native C++
+transport tests. The web workflow additionally compiles and runs this
 standalone suite in actual Google Chrome, using the browser installed on the
 GitHub runner. `tools/run_tests.py` also runs this Chrome suite after collecting
 native Flutter coverage. These browser tests exercise the web renderer; native platform
 settings in widget tests do not establish physical Android or iOS input behavior.
+
+The root `.github/workflows/continuous-integration.yml` owns test and coverage
+checks. `build-web.yml` and `build-production.yml` own the release builds and
+downloadable artifacts. The former combined `jot_flutter.yml` workflow is removed
+so those jobs do not also run through a duplicate workflow.
 
 Run the focused checks with the pinned Flutter 3.41.9 SDK:
 

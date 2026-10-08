@@ -1,0 +1,115 @@
+name: Build Web
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: jot_flutter
+
+jobs:
+  web:
+    name: Web release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Flutter 3.41.9
+        run: |
+          git clone --depth 1 --branch 3.41.9 https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+
+      - name: Install Node.js 24
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Install Emscripten 4.0.13
+        run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+          "$RUNNER_TEMP/emsdk/emsdk" install 4.0.13
+          "$RUNNER_TEMP/emsdk/emsdk" activate 4.0.13
+          echo "$RUNNER_TEMP/emsdk/upstream/emscripten" >> "$GITHUB_PATH"
+          echo "EMSDK=$RUNNER_TEMP/emsdk" >> "$GITHUB_ENV"
+          echo "EM_CONFIG=$RUNNER_TEMP/emsdk/.emscripten" >> "$GITHUB_ENV"
+
+      - name: Build and test the C++ browser engine and worker bridge
+        run: |
+          python3 tools/build_web_core.py
+          node tools/test_web_core.cjs
+          node --test tools/test_web_bridge.cjs
+
+      - name: Resolve Flutter dependencies
+        run: flutter pub get
+
+      - name: Analyze Flutter source
+        run: flutter analyze
+
+      - name: Locate Google Chrome
+        run: |
+          jot_chrome="${CHROME_EXECUTABLE:-}"
+          if [[ ! -x "$jot_chrome" ]]; then
+            jot_chrome="$(command -v google-chrome || command -v google-chrome-stable || true)"
+          fi
+          if [[ ! -x "$jot_chrome" ]]; then
+            echo "::error::Google Chrome is required for the browser drag regression." >&2
+            exit 1
+          fi
+          echo "CHROME_EXECUTABLE=$jot_chrome" >> "$GITHUB_ENV"
+          "$jot_chrome" --version
+
+      - name: Verify drag placement in Chrome
+        timeout-minutes: 10
+        run: flutter test --platform chrome test/platform_drag_test.dart
+
+      - name: Build Flutter web release
+        run: flutter build web --release
+
+      - name: Verify and package the complete web release
+        run: |
+          for jot_asset in \
+            index.html flutter_bootstrap.js main.dart.js flutter_service_worker.js \
+            jot_core.js jot_core.wasm jot_bridge.js jot_worker.js \
+            _worker.js _routes.json assets/assets/dictionary/words.txt; do
+            test -s "build/web/$jot_asset" || {
+              echo "::error::Missing web release asset: $jot_asset" >&2
+              exit 1
+            }
+          done
+          cmp web/_worker.js build/web/_worker.js
+          cmp web/_routes.json build/web/_routes.json
+          cmp web/jot_core.wasm build/web/jot_core.wasm
+          mkdir -p build/artifacts
+          tar -czf build/artifacts/jot-web-release.tar.gz -C build/web .
+          (
+            cd build/artifacts
+            sha256sum jot-web-release.tar.gz > jot-web-release.tar.gz.sha256
+            sha256sum --check jot-web-release.tar.gz.sha256
+          )
+
+      - name: Upload web release and checksum
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: jot-web-release
+          path: |
+            jot_flutter/build/artifacts/jot-web-release.tar.gz
+            jot_flutter/build/artifacts/jot-web-release.tar.gz.sha256
+          if-no-files-found: error
+          compression-level: 0

@@ -17,6 +17,7 @@ void main(List<String> args) async {
         'src/abi_boundary.cpp',
         'src/jot_api.cpp',
       ],
+      includes: ['src'],
       language: Language.cpp,
       std: 'c++17',
       // Bundle libc++ on Android so the app does not depend on an unregistered
