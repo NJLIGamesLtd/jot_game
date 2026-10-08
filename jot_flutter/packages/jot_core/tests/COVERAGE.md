@@ -25,9 +25,9 @@ this first-party scope. `abi_boundary.hpp`, `ai.hpp`, and `jot_api.h` contain on
 declarations and have no executable lines. The repository gate pins their hashes
 so adding executable code requires reviewing their coverage status.
 
-The verified native run covers **1103/1103 lines and 78/78 functions**. Raw branch
-coverage is **822/840 outcomes (97.86%)**, and LLVM region coverage is 1046/1052
-(99.43%). No coverage ignore directives, branch exclusions, or production-source
+The verified native run covers **1143/1143 lines and 79/79 functions**. Raw branch
+coverage is **835/854 outcomes (97.78%)**, and LLVM region coverage is 1064/1070
+(99.44%). No coverage ignore directives, branch exclusions, or production-source
 exclusions are used to raise those numbers.
 
 ## Test responsibilities
@@ -57,6 +57,10 @@ is unchanged; `c_json_api` continues to test the shipped shared library.
 an independent brute-force move oracle for crossing/repeated-letter/blank racks,
 empty/finished/no-move/score-limit states, incomplete default-budget search, every
 word in the original 143722-word asset, and complete self-play with that asset.
+The compact trie is compared against an independently built dense trie for
+every A-Z transition and terminal marker in a generated vocabulary. The original
+asset's complete transition fingerprint, compact allocation bound, and four exact
+opening/crossing/blank hint results pin node numbering and search tie behavior.
 
 Additional build/runtime regressions:
 
@@ -89,7 +93,7 @@ coverage denominator.
 | AI terminal, connected candidate with no placements | 1 | Connection becomes true only when a new rack placement is pushed. |
 | AI committed/rack letter outside A–Z | 4 | Constructors and `restore` validate letters; committed blanks carry their chosen A–Z letter. |
 | AI encounters a second unused blank | 1 | Each player starts with exactly one blank, and `restore` enforces its inventory. |
-| Dictionary current word ends before its common prefix with the previous word | 1 | Sorting and deduplication ensure the current word cannot be a shorter or identical prefix of the previous word. |
+| Dictionary current word ends before its common prefix with the previous word | 2 | Sorting and deduplication ensure the current word cannot be a shorter or identical prefix of the previous word. Both the sizing pass and compact construction pass have this invariant. |
 | A single turn's total exceeds 1000000 | 1 | At most 8 placements generate at most 16 words of at most 16 letters. Letter points are at most 10, letter multipliers at most 3, and any row/column's word-bonus product at most 16. The loose upper bound is 122980 including the rack bonus. `test_single_move_score_bound` checks these board/scoring constants. A high accumulated score can still exceed the limit and is tested. |
 | C ABI dictionary is empty after construction | 1 | The dictionary constructor rejects empty vocabularies; the cache stores only immutable successful constructions. |
 | Signed JSON integer above its positive maximum | 1 | The JSON parser represents nonnegative input numbers as unsigned; negative signed values can violate the lower bound but not these positive maxima. Both range errors are tested through the applicable signed/unsigned paths. |

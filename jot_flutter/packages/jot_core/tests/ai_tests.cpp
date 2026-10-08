@@ -2,6 +2,7 @@
 #include "dictionary.hpp"
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <fstream>
 #include <functional>
@@ -132,6 +133,62 @@ void verify_optimum(jot::Game& game) {
   }
 }
 
+void compact_dictionary_tests() {
+  // A separately built dense reference verifies every transition and terminal
+  // marker, so a packing/rank error cannot hide behind a few accepted words.
+  struct DenseNode {
+    std::array<int, 26> children;
+    bool terminal = false;
+    DenseNode() { children.fill(-1); }
+  };
+  std::vector<std::string> words = {"A", "AB", "ABC", "ABZ", "AZ", "B", "BA", "Z", "ZZ"};
+  std::uint32_t random = 123;
+  for (int sample = 0; sample < 1000; ++sample) {
+    std::string word;
+    for (int letter = 0; letter < 1 + sample % 12; ++letter) {
+      random = random * 1664525u + 1013904223u;
+      word += static_cast<char>('A' + random % 26);
+    }
+    words.push_back(word);
+  }
+  std::string lines;
+  // Deliberately unsorted, duplicated and CRLF input exercises normalization.
+  for (const auto& word : words) lines += word + "\r\n";
+  lines += "AB\n\nABC";
+  jot::Dictionary dictionary(lines);
+  words.push_back("AB");
+  words.push_back("ABC");
+  std::sort(words.begin(), words.end());
+  words.erase(std::unique(words.begin(), words.end()), words.end());
+  std::vector<DenseNode> reference(1);
+  for (const auto& word : words) {
+    int node = 0;
+    for (char letter : word) {
+      int next = reference[node].children[letter - 'A'];
+      if (next == -1) {
+        next = static_cast<int>(reference.size());
+        reference[node].children[letter - 'A'] = next;
+        reference.emplace_back();
+      }
+      node = next;
+    }
+    reference[node].terminal = true;
+  }
+  require(dictionary.words() == words && dictionary.nodes().size() == reference.size(),
+          "Compact trie changed normalized words or node numbering");
+  for (std::size_t node = 0; node < reference.size(); ++node) {
+    require(dictionary.nodes()[node].terminal == reference[node].terminal,
+            "Compact trie changed a terminal marker");
+    for (int letter = 0; letter < 26; ++letter) {
+      require(dictionary.child(static_cast<int>(node), letter) == reference[node].children[letter],
+              "Compact trie changed an A-Z transition");
+    }
+  }
+  require(dictionary.trie_storage_bytes() <= reference.size() * 16,
+          "Compact trie regained dense child storage");
+  for (const auto& word : words) require(dictionary.contains(word), "Compact trie lost a generated word");
+}
+
 void small_dictionary_tests() {
   auto dictionary = std::make_shared<jot::Dictionary>(
       "AT\nAS\nCAT\nCATS\nSAT\nCAST\nSCAT\nACT\nACTS\n"
@@ -229,7 +286,66 @@ void original_dictionary_tests(const std::string& path) {
   const auto started = std::chrono::steady_clock::now();
   auto dictionary = std::make_shared<jot::Dictionary>(words);
   require(dictionary->words().size() == 143722, "Original dictionary count changed");
+  require(dictionary->nodes().size() == 293227 &&
+          dictionary->trie_storage_bytes() <= dictionary->nodes().size() * 16,
+          "Original dictionary trie layout lost its compact storage");
+  std::uint64_t graph_hash = 14695981039346656037ull;
+  const auto hash_value = [&](std::uint32_t value) {
+    for (int byte = 0; byte < 4; ++byte) {
+      graph_hash ^= (value >> (8 * byte)) & 255u;
+      graph_hash *= 1099511628211ull;
+    }
+  };
+  for (std::size_t node = 0; node < dictionary->nodes().size(); ++node) {
+    hash_value(dictionary->nodes()[node].terminal);
+    for (int letter = 0; letter < 26; ++letter) {
+      hash_value(static_cast<std::uint32_t>(dictionary->child(static_cast<int>(node), letter)));
+    }
+  }
+  require(graph_hash == 669227770809285337ull,
+          "Original dictionary node IDs, terminal markers or A-Z transitions changed");
   for (const auto& word : dictionary->words()) require(dictionary->contains(word), "Trie lookup failed");
+  struct HintFixture {
+    const char* rack;
+    int board_direction;
+    const char* word;
+    int score;
+    int row;
+    int col;
+    bool vertical;
+    std::vector<int> rack_order;
+  };
+  // Captured from the dense-trie baseline: equal-scoring moves must retain the
+  // exact word, position, blank substitution and rack-index selection.
+  for (const auto& fixture : std::vector<HintFixture>{
+           {"CATSLINE", -1, "CATLINS", 30, 7, 7, false, {0, 1, 2, 4, 5, 6, 3}},
+           {"C@SEINRT", -1, "CENTRIST", 130, 7, 7, false, {0, 3, 5, 1, 6, 4, 2, 7}},
+           {"CATSLINE", 0, "LAITANCES", 126, 6, 7, true, {4, 5, 2, 1, 6, 0, 7, 3}},
+           {"C@SEINRT", 1, "BACTERINS", 130, 7, 6, false, {1, 0, 7, 3, 6, 4, 5, 2}}}) {
+    jot::Game fixed(dictionary, 123, -1);
+    auto state = fixed.state();
+    state.current_player = fixture.board_direction < 0 ? 0 : 1;
+    rack(state, fixture.rack);
+    if (fixture.board_direction >= 0) board_word(state, "AT", 7, 7, fixture.board_direction == 1, 0);
+    require(fixed.restore(state).ok, "Could not restore baseline hint fixture");
+    const auto move = jot::find_best_move(fixed);
+    require(move && !move->search_exhausted && move->evaluation.valid &&
+            move->evaluation.score == fixture.score && move->evaluation.words.size() == 1 &&
+            move->evaluation.words.front().word == fixture.word &&
+            move->placements.size() == fixture.rack_order.size(),
+            "Full-dictionary hint changed its baseline word or score");
+    std::size_t placement_index = 0;
+    for (std::size_t offset = 0; offset < std::string(fixture.word).size(); ++offset) {
+      const int row = fixture.row + (fixture.vertical ? static_cast<int>(offset) : 0);
+      const int col = fixture.col + (fixture.vertical ? 0 : static_cast<int>(offset));
+      if (state.board[row * jot::kBoardSize + col]) continue;
+      const auto& placed = move->placements[placement_index];
+      require(placed.rack_index == fixture.rack_order[placement_index] && placed.row == row &&
+              placed.col == col && placed.letter == fixture.word[offset],
+              "Full-dictionary hint changed its baseline position or rack selection");
+      ++placement_index;
+    }
+  }
   const auto loaded = std::chrono::steady_clock::now();
   jot::Game game(dictionary, 123, -1);
   int moves = 0;
@@ -272,6 +388,7 @@ void original_dictionary_tests(const std::string& path) {
 int main(int argc, char** argv) {
   try {
     small_dictionary_tests();
+    compact_dictionary_tests();
     if (argc > 1) original_dictionary_tests(argv[1]);
     std::cout << "Dictionary and AI tests passed.\n";
     return 0;
