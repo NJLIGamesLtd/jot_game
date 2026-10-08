@@ -1,5 +1,40 @@
 # Milestone verification
 
+## Performance audit — October 8, 2026
+
+This audit was completed before performance edits. The baseline is commit
+`b0bbb60`, including the beginner guidance and touch/mouse drag controls. Active
+targets are Android, iOS, macOS, Windows, Linux and web: Flutter 3.41.9 / Dart
+3.11.5, C++17 through native FFI isolates or a browser WebAssembly worker, and
+Cloudflare Workers / SQLite Durable Objects for multiplayer. Build systems are
+Flutter platform tooling, native-assets CBuilder, CMake, Emscripten and Wrangler.
+The original Android/iOS directories are historical implementations.
+
+| Rank | Finding | Planned response |
+| --- | --- | --- |
+| High | Every unchanged online poll still persists session/history and notifies the whole page; polling continues while hidden or backgrounded. At a two-second cadence this schedules about 30 reads and 60 preference writes per minute. | Suspend background polling, refresh on resume, avoid unchanged writes and rebuilds, preserve durable mutation retries. |
+| High | Entering online mode retains the unused local engine worker, including at least 32 MiB of browser WASM linear memory. | Release the already-saved local engine and verify returning to local play restores its save. |
+| High memory | The dictionary has 293,227 dense trie nodes, each with 26 child integers and a terminal flag: approximately 30.2 MiB before words and other allocations. | Benchmark compact immutable links against dictionary lookup and AI search before choosing the representation. |
+| High aggregate server CPU | Each room read copies the 1,293,136-byte dictionary through the WASM string bridge, restores a temporary engine and produces an identical player view at unchanged revisions. | Measure creation/read costs; remove repeated dictionary transfer and consider a strictly bounded revision cache while retaining authentication, expiry and persistence checks. |
+| Medium | Local actions save twice even when no computer turn occurs; UI-isolate JSON conversion, repeated save parsing and full-page notifications add work. | Remove redundant saves first; measure conversion/frame costs before changing transport or widget boundaries. |
+| Medium | Generation guards discard obsolete results but do not stop CPU work or underlying HTTP requests. Room and invitation histories have no size bound. | Test cancellable reads and worker teardown; preserve in-flight move IDs and valid saved seats. Document storage-policy changes requiring a separate migration. |
+| Medium | AI candidate evaluation copies a board and allocates a set; server replies take a redundant JSON encode/decode round trip. WASM builds use `-O3` without LTO. | Benchmark small algorithm improvements and release optimization variants; reject size savings that harm responsiveness. |
+| Low | A player token is hashed twice per request; Cupertino icon dependency appears unused. | Reuse existing work and verify imports before pruning dependencies. |
+
+Existing strengths: one persistent worker per local engine, lazy board cells,
+immutable shared dictionary caching with one entry, temporary-handle cleanup,
+bounded server receipts, capped request bodies, and asynchronous networking.
+No per-command raw-thread pattern or confirmed normal-close worker leak was
+found. Native core builds already use `-O3`; backend npm packages are development
+tools, so removing them would not shrink the deployed application.
+
+Baseline artifacts: each C++ WASM binary is 297,831 bytes, browser glue 17,048
+bytes, server glue 14,922 bytes, dictionary 1,293,136 bytes and universal macOS
+core library 683,120 bytes. These are uncompressed filesystem sizes. Measurements
+will distinguish engine benchmarks, production/profile frame samples and
+deterministic regression counts. Tests cannot establish zero stutter on every
+device; 16.67 ms and 8.33 ms are the 60 Hz and 120 Hz frame-budget reference points.
+
 Checked on October 7, 2026, using Flutter 3.41.9 / Dart 3.11.5 on macOS.
 Dependency versions are recorded in `pubspec.lock`.
 
