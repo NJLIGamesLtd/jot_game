@@ -15,6 +15,7 @@ class InteractiveFixture extends PresentationFixture {
   String? joinedLink;
   String? resumedRoom;
   Future<void> Function(String)? action;
+  bool actionAccepted = true;
   @override
   bool get isOnline => online;
   @override
@@ -67,9 +68,10 @@ class InteractiveFixture extends PresentationFixture {
   }
 
   @override
-  Future<void> act(String op, [Map<String, dynamic> fields = const {}]) async {
+  Future<bool> act(String op, [Map<String, dynamic> fields = const {}]) async {
     commands.add({'op': op, ...fields});
     await action?.call(op);
+    return actionAccepted;
   }
 
   void changed() => notifyListeners();

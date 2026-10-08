@@ -75,9 +75,9 @@ jobs:
           echo "CHROME_EXECUTABLE=$jot_chrome" >> "$GITHUB_ENV"
           "$jot_chrome" --version
 
-      - name: Verify drag placement in Chrome
+      - name: Verify drag placement and beginner guidance in Chrome
         timeout-minutes: 10
-        run: flutter test --platform chrome test/platform_drag_test.dart
+        run: flutter test --platform chrome test/platform_drag_test.dart test/beginner_guidance_test.dart
 
       - name: Build Flutter web release
         run: flutter build web --release

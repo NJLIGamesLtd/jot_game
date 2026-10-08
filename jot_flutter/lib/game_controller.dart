@@ -226,9 +226,11 @@ class GameController extends ChangeNotifier {
     return result;
   }
 
-  Future<void> act(String op, [Map<String, dynamic> fields = const {}]) async {
+  /// Reports whether this action was accepted by the engine or online server.
+  /// Guided follow-up actions must stop after a rejection or lost connection.
+  Future<bool> act(String op, [Map<String, dynamic> fields = const {}]) async {
     if (isOnline) {
-      if (!canAct || _disposed) return;
+      if (!canAct || _disposed) return false;
       busy = true;
       _pendingAction = {
         'revision': onlineRevision,
@@ -237,9 +239,10 @@ class GameController extends ChangeNotifier {
       };
       _notify();
       final generation = _generation;
+      var accepted = false;
       try {
         if (await _saveSession()) {
-          await _onlineRequest(generation);
+          accepted = await _onlineRequest(generation);
         } else {
           _pendingAction = null;
           message =
@@ -251,10 +254,10 @@ class GameController extends ChangeNotifier {
           _notify();
         }
       }
-      return;
+      return accepted;
     }
-    if (joiningOnline) return;
-    if (busy || _core == null || _disposed) return;
+    if (joiningOnline) return false;
+    if (busy || _core == null || _disposed) return false;
     busy = true;
     _notify();
     try {
@@ -263,9 +266,12 @@ class GameController extends ChangeNotifier {
         await _save();
         await _computerTurn();
         await _save();
+        return true;
       }
+      return false;
     } catch (error) {
       message = 'The action could not finish: $error';
+      return false;
     } finally {
       busy = false;
       _notify();
@@ -571,12 +577,12 @@ class GameController extends ChangeNotifier {
     if (state == null) failed = true;
   }
 
-  Future<void> _onlineRequest(int generation) async {
+  Future<bool> _onlineRequest(int generation) async {
     if (_requestInFlight) {
-      if (_pendingAction == null) return;
+      if (_pendingAction == null) return false;
       await _requestDone[generation]?.future;
     }
-    if (!_active(generation) || _session == null) return;
+    if (!_active(generation) || _session == null) return false;
     _requests.add(generation);
     final requestDone = Completer<void>();
     _requestDone[generation] = requestDone;
@@ -589,12 +595,13 @@ class GameController extends ChangeNotifier {
               _session!['playerToken'] as String,
               pending,
             );
-      if (!_active(generation)) return;
+      if (!_active(generation)) return false;
       _acceptOnline(response, action: pending != null);
       if (pending != null) _pendingAction = null;
       await _saveSession();
+      return pending != null && response['ok'] == true;
     } catch (error) {
-      if (!_active(generation)) return;
+      if (!_active(generation)) return false;
       if (error is MultiplayerException && error.snapshot != null) {
         _acceptOnline(error.snapshot!, action: true);
         _pendingAction = null;
@@ -609,9 +616,10 @@ class GameController extends ChangeNotifier {
           _pendingAction = null;
           await _saveSession();
         }
-        if (!_active(generation)) return;
+        if (!_active(generation)) return false;
         _networkFailure(error);
       }
+      return false;
     } finally {
       _requests.remove(generation);
       _requestDone.remove(generation);

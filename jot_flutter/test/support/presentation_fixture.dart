@@ -39,9 +39,10 @@ class PresentationFixture extends GameController {
     };
   }
   @override
-  Future<void> act(String op, [Map<String, dynamic> data = const {}]) async {
+  Future<bool> act(String op, [Map<String, dynamic> data = const {}]) async {
     operation = op;
     fields = data;
+    return true;
   }
 }
 

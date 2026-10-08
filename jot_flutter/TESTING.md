@@ -34,6 +34,8 @@ separate web and five-platform native build workflows.
 | Integration | Workerd room and coverage-path suites | Actual Workers/Durable Objects → SQL → C++ WASM, two seats, private views, duplicate/concurrent commands, eviction/restart, expiration and initialization races |
 | Integration | Browser and server WASM tests | Complete 143,722-word dictionary, native/WASM save interoperability and bounded shared dictionary memory |
 | UI | Widget, presentation and drag/drop suites | Phone/tablet/desktop layouts, dialogs, controls, accessibility actions, clipboard fallback, touch dragging, moving feedback, highlights, blanks, zoom and rejected drops |
+| Unit / UI | Turn guidance and beginner presentation suites | Draw/place/play instructions, valid-word refill explanations, first-move centre markers, depleted bags, inactive turns, recovery guards and large-text layouts |
+| Integration / Regression | Beginner refill and action-confirmation suites | Actual C++ JAR recovery and 19-point play, preserving committed tiles; accepted/rejected commands, stale online snapshots, lost replies, storage failures and disposal |
 
 UI tests run in Flutter's test renderer with real pointer gestures. They are
 automated widget tests, and the local-game integration test uses the actual C++
@@ -46,8 +48,8 @@ Android, iOS, Windows, macOS and Linux platform settings and phone, tablet and
 desktop layouts. Continuous Integration requires this file in the full native
 widget suite. Every native Release build also runs it with the native C++
 transport tests. The web workflow additionally compiles and runs this
-standalone suite in actual Google Chrome, using the browser installed on the
-GitHub runner. `tools/run_tests.py` also runs this Chrome suite after collecting
+suite and the beginner guidance UI suite in actual Google Chrome, using the browser installed on the
+GitHub runner. `tools/run_tests.py` also runs both Chrome suites after collecting
 native Flutter coverage. These browser tests exercise the web renderer; native platform
 settings in widget tests do not establish physical Android or iOS input behavior.
 
@@ -60,7 +62,7 @@ Run the focused checks with the pinned Flutter 3.41.9 SDK:
 
 ```sh
 flutter test test/platform_drag_test.dart
-CHROME_EXECUTABLE=/path/to/google-chrome flutter test --platform chrome test/platform_drag_test.dart
+CHROME_EXECUTABLE=/path/to/google-chrome flutter test --platform chrome test/platform_drag_test.dart test/beginner_guidance_test.dart
 ```
 
 Flutter 3.41.9 supports the Chrome test backend but labels it deprecated in its
