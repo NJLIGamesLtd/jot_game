@@ -172,8 +172,15 @@ jobs:
           $jotVsWhere = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
           $jotVsRoot = & $jotVsWhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
           if (!$jotVsRoot) { throw 'Visual C++ installation missing.' }
-          $jotRedist = Get-ChildItem "$jotVsRoot/VC/Redist/MSVC" -Directory | Sort-Object Name -Descending | Select-Object -First 1
-          $jotCrt = Get-ChildItem "$($jotRedist.FullName)/x64" -Directory -Filter 'Microsoft.VC*.CRT' | Select-Object -First 1
+          $jotRedistVersions = Get-ChildItem "$jotVsRoot/VC/Redist/MSVC" -Directory |
+            Where-Object { $_.Name -match '^\d+(\.\d+)+$' } |
+            Sort-Object { [version]$_.Name } -Descending
+          $jotCrt = $jotRedistVersions | ForEach-Object {
+            $jotX64 = Join-Path $_.FullName 'x64'
+            if (Test-Path $jotX64 -PathType Container) {
+              Get-ChildItem $jotX64 -Directory -Filter 'Microsoft.VC*.CRT'
+            }
+          } | Select-Object -First 1
           if (!$jotCrt) { throw 'Visual C++ runtime redistributables missing.' }
           Copy-Item "$($jotCrt.FullName)/*.dll" -Destination $jotBundle -Force
           foreach ($jotDll in @('msvcp140.dll', 'vcruntime140.dll', 'vcruntime140_1.dll')) {
