@@ -77,7 +77,7 @@ jobs:
 
       - name: Verify drag placement, beginner guidance and board caching in Chrome
         timeout-minutes: 10
-        run: flutter test --platform chrome test/platform_drag_test.dart test/beginner_guidance_test.dart test/board_rendering_regression_test.dart test/board_cache_interaction_test.dart
+        run: flutter test --platform chrome test/platform_drag_test.dart test/beginner_guidance_test.dart test/board_rendering_regression_test.dart test/board_cache_interaction_test.dart test/board_layout_test.dart
 
       - name: Build Flutter web release
         run: flutter build web --release

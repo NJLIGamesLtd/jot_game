@@ -26,7 +26,7 @@ def main():
         [str(flutter), 'test', '--platform', 'chrome',
          'test/platform_drag_test.dart', 'test/beginner_guidance_test.dart',
          'test/board_rendering_regression_test.dart',
-         'test/board_cache_interaction_test.dart'],
+         'test/board_cache_interaction_test.dart', 'test/board_layout_test.dart'],
         ['npm', '--prefix', 'tools', 'ci'],
         ['npm', '--prefix', 'tools', 'run', 'coverage'],
         ['python3', 'tools/run_dart_web_coverage.py', '--dart', str(dart)],

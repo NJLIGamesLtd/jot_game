@@ -566,7 +566,12 @@ class _GamePageState extends State<GamePage> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(child: board),
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.topCenter,
+                                  child: board,
+                                ),
+                              ),
                               const SizedBox(width: 28),
                               SizedBox(
                                 width: 300,
