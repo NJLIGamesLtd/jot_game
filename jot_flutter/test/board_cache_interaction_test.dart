@@ -1,4 +1,4 @@
-import 'dart:ui' show SemanticsAction;
+import 'dart:ui' show PointerDeviceKind, SemanticsAction;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderParagraph;
@@ -73,8 +73,8 @@ void main() {
         expect(firstTaps, 1);
         expect(currentTaps, 2);
 
-      await mountBoard(tester, state);
-      await tester.tap(square, warnIfMissed: false);
+        await mountBoard(tester, state);
+        await tester.tap(square, warnIfMissed: false);
         node = tester.getSemantics(square);
         expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
         expect(currentTaps, 2);
@@ -169,6 +169,80 @@ void main() {
     // Occupancy is also read live, rather than captured when a target was built.
     (state['board'] as List)[119] = {'letter': 'B', 'score': 3, 'owner': 0};
     expect(target().onWillAcceptWithDetails!(details), isFalse);
+  });
+
+  testWidgets('Drop-only boards accept touch drags without tap or drag actions', (
+    tester,
+  ) async {
+    final state = emptyBoard();
+    final accepted = <int>[];
+    const sourceKey = ValueKey('external-rack-tile');
+    const feedbackKey = ValueKey('external-drag-feedback');
+    Future<void> mount(bool Function(RackTileDrag)? canDrop) =>
+        tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Row(
+                children: [
+                  Draggable<RackTileDrag>(
+                    data: payload,
+                    rootOverlay: true,
+                    feedback: const Material(
+                      key: feedbackKey,
+                      child: SizedBox(width: 64, height: 64, child: Text('A')),
+                    ),
+                    child: const SizedBox(
+                      key: sourceKey,
+                      width: 64,
+                      height: 64,
+                      child: Center(child: Text('A')),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 600,
+                    child: JotBoard(
+                      state: state,
+                      canDrop: canDrop,
+                      onDrop: (tile, index) {
+                        accepted.add(index);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+    Future<void> dragToCentre() async {
+      final pointer = await tester.startGesture(
+        tester.getCenter(find.byKey(sourceKey)),
+        kind: PointerDeviceKind.touch,
+      );
+      await pointer.moveBy(const Offset(25, -25));
+      await tester.pump();
+      expect(find.byKey(feedbackKey), findsOneWidget);
+      await pointer.moveTo(tester.getCenter(find.byKey(squareKey)));
+      await tester.pump();
+      await pointer.up();
+      await tester.pump();
+      expect(find.byKey(feedbackKey), findsNothing);
+    }
+
+    await mount((tile) => identical(tile, payload));
+    await dragToCentre();
+    expect(accepted, [119]);
+    // Removing eligibility disables all pointer input without a stale target.
+    await mount(null);
+    await dragToCentre();
+    expect(accepted, [119]);
+    // A present callback can also reject a tile while retaining a drop-only UI.
+    await mount((_) => false);
+    await dragToCentre();
+    expect(accepted, [119]);
+    await mount((_) => true);
+    await dragToCentre();
+    expect(accepted, [119, 119]);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets(
