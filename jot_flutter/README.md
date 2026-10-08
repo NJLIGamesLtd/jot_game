@@ -96,6 +96,25 @@ Computer search has a work budget and reports truncation. If a bounded search
 finds no move, the computer performs a complete search before deciding to pass.
 New game explicitly replaces only this app's current local save.
 
+### Getting started
+
+The turn guide walks you through **Draw → Place → Play** and explains what is
+needed before you can finish a move. Fill your rack to eight tiles at the start
+of each turn, then drag tiles onto the board and release to place them. The four
+outlined centre squares show where your first word must cross. Later words join
+letters already on the board. Check the preview, then press **Play word**.
+
+A valid word preview can still need a rack refill. If you have already placed
+tiles with fewer than eight in your rack, **Return tiles & fill rack** returns
+only your unplayed tiles and fills your rack. Place the word again afterward;
+committed board letters and scores stay saved. You can also choose your new
+vowels and consonants individually after using **Recall**. When both of your
+bags are empty, you can play the tiles you have.
+
+**How to play** explains the three steps, controls, scoring and online invites.
+Control tooltips explain Recall, Hint, Fill rack and Pass. This guidance and
+recovery use the same Flutter widgets on mobile, desktop and web.
+
 ## GitHub Actions
 
 The repository has three workflows under the root `.github/workflows/` directory:

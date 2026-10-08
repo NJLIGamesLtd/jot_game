@@ -20,8 +20,9 @@ subprocess.run([
     '-sALLOW_MEMORY_GROWTH=1', '-sDISABLE_EXCEPTION_CATCHING=0',
     '-sDYNAMIC_EXECUTION=0',
     '-sINCOMING_MODULE_JS_API=["instantiateWasm"]',
-    '-sEXPORTED_FUNCTIONS=["_jot_create","_jot_execute","_jot_destroy"]',
+    # The server adapter owns one stable dictionary allocation per module.
+    '-sEXPORTED_FUNCTIONS=["_jot_create","_jot_execute","_jot_destroy","_malloc","_free"]',
     '-sEXPORTED_RUNTIME_METHODS=["cwrap"]',
-    '-sSTACK_SIZE=2097152', '-sINITIAL_MEMORY=33554432',
+    '-sSTACK_SIZE=2097152', '-sINITIAL_MEMORY=16777216',
 ], check=True, cwd=root)
 shutil.copyfile(root / 'assets/dictionary/words.txt', destination / 'jot_dictionary.txt')

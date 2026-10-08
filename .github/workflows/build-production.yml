@@ -70,8 +70,8 @@ jobs:
         run: flutter pub get
       - name: Analyze Flutter source
         run: flutter analyze
-      - name: Verify native engine transport and shared platform gestures
-        run: flutter test test/core_transport_test.dart test/platform_drag_test.dart
+      - name: Verify native transport, beginner guidance and shared gestures
+        run: flutter test test/core_transport_test.dart test/platform_drag_test.dart test/beginner_guidance_test.dart test/board_rendering_regression_test.dart test/board_cache_interaction_test.dart test/board_layout_test.dart
 
       - name: Configure optional Android release key
         if: matrix.platform == 'android' && github.event_name != 'pull_request'

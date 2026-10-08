@@ -1,0 +1,16 @@
+{
+  "measurement_context": {
+    "date": "2026-10-08",
+    "source_commit": "fc8eca76fc564f4e13dbbb99116b963eb1beb546",
+    "flutter": "3.41.9 / Dart 3.11.5",
+    "emscripten": "6.0.3-git",
+    "phase": "final height-fit UI, compact core, Cupertino font retained"
+  },
+  "size_metric": "sum of regular-file lengths; symlinks ignored; uncompressed (filesystem blocks differ)",
+  "macos_app": 44479221,
+  "web_app": 38517998,
+  "macos_core": 683280,
+  "web_wasm": 300533,
+  "web_main": 2573952,
+  "web_main_gzip_bytes": 756721
+}

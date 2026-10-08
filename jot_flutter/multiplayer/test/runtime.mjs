@@ -3,9 +3,9 @@ import { resolve } from 'node:path';
 import { Miniflare, convertV4MiniflareOptions } from 'miniflare';
 import { collectCoverage } from './coverage-collect.mjs';
 
-export function runtime(persistence) {
+export function runtime(persistence, directoryOverride) {
   const covered = process.env.JOT_COVERAGE === '1';
-  const directory = covered ? '.coverage-build' : 'dist';
+  const directory = directoryOverride ?? (covered ? '.coverage-build' : 'dist');
   const files = covered ? ['index.js', ...readdirSync(`${directory}/generated`).map((file) => `generated/${file}`)]
     : ['index.js', ...readdirSync(directory).filter((file) => /\.(wasm|txt)$/.test(file))];
   const mf = new Miniflare(convertV4MiniflareOptions({

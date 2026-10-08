@@ -1,0 +1,97 @@
+{
+  "measurement_context": {
+    "date": "2026-10-08",
+    "host": "Intel Core i9-9880H, macOS x86_64",
+    "flutter": "3.41.9 / Dart 3.11.5",
+    "node": "26.5.0",
+    "emscripten": "6.0.3-git",
+    "baseline_commit": "b0bbb60",
+    "limits": "Observations on this shared host, not guaranteed limits on other hardware. No physical-device frame measurements.",
+    "phase": "same final binary, string RPC control"
+  },
+  "results": {
+    "node": "v26.5.0",
+    "modulePath": "multiplayer/generated/jot_server_core.mjs",
+    "wasmPath": "multiplayer/generated/jot_server_core.wasm",
+    "workerDirectory": "/var/folders/gg/fffn3nyj7hs7g7wndblzx8j00000gn/T/jot-rpc-string-TJqzS8",
+    "count": 40,
+    "hintCount": 0,
+    "dictionaryBytes": 1293136,
+    "wasmBytes": 300541,
+    "nodeProcessRssBeforeBytes": 151699456,
+    "metrics": {
+      "moduleInitialization": {
+        "samples": 1,
+        "minMs": 1.612,
+        "p50Ms": 1.612,
+        "p95Ms": 1.612,
+        "meanMs": 1.612
+      },
+      "firstDictionaryAndGameCreation": {
+        "samples": 1,
+        "minMs": 64.058,
+        "p50Ms": 64.058,
+        "p95Ms": 64.058,
+        "meanMs": 64.058
+      },
+      "legacyCreateDestroy": {
+        "samples": 40,
+        "minMs": 15.478,
+        "p50Ms": 16.402,
+        "p95Ms": 19.861,
+        "meanMs": 16.754
+      },
+      "legacyCreateRestoreViewDestroy": {
+        "samples": 40,
+        "minMs": 14.952,
+        "p50Ms": 15.433,
+        "p95Ms": 17.515,
+        "meanMs": 15.949
+      },
+      "nativeViewAndJsonDecode": {
+        "samples": 40,
+        "minMs": 0.393,
+        "p50Ms": 0.404,
+        "p95Ms": 0.489,
+        "meanMs": 0.411
+      },
+      "adapterColdCreateRestore": {
+        "samples": 1,
+        "minMs": 33.046,
+        "p50Ms": 33.046,
+        "p95Ms": 33.046,
+        "meanMs": 33.046
+      },
+      "adapterWarmCreateRestoreViewDestroy": {
+        "samples": 40,
+        "minMs": 1.768,
+        "p50Ms": 1.903,
+        "p95Ms": 2.511,
+        "meanMs": 2.072
+      },
+      "httpColdRoomCreate": {
+        "samples": 1,
+        "minMs": 146.858,
+        "p50Ms": 146.858,
+        "p95Ms": 146.858,
+        "meanMs": 146.858
+      },
+      "workerdAlternatingPrivateReads": {
+        "samples": 40,
+        "minMs": 7.646,
+        "p50Ms": 9.01,
+        "p95Ms": 11.585,
+        "meanMs": 9.036
+      }
+    },
+    "wasmHeapBeforeCreate": 16777216,
+    "savedGameBytes": 2659,
+    "wasmHeapAfterScenario": 16777216,
+    "scenarioFingerprint": "e94aeebc0ceaac518c721bdb885ddaebe54f44ad8fa526419e0d094e46086544",
+    "wasmHeapAfterRepeatedHandles": 16777216,
+    "wasmHeapAfterHints": 16777216,
+    "nodeProcessRssAfterLowLevelBytes": 180203520,
+    "nodeProcessRssAfterAdapterBytes": 192090112,
+    "nodeProcessRssAfterHttpBytes": 272117760
+  }
+}

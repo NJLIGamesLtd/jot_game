@@ -1,0 +1,91 @@
+{
+  "measurement_context": {
+    "date": "2026-10-08",
+    "host": "Intel Core i9-9880H, macOS x86_64",
+    "flutter": "3.41.9 / Dart 3.11.5",
+    "node": "26.5.0",
+    "emscripten": "6.0.3-git",
+    "baseline_commit": "b0bbb60",
+    "limits": "Observations on this shared host, not guaranteed limits on other hardware. No physical-device frame measurements.",
+    "phase": "dense dictionary / original adapter"
+  },
+  "results": {
+    "node": "v26.5.0",
+    "modulePath": "multiplayer/generated/jot_server_core.mjs",
+    "wasmPath": "multiplayer/generated/jot_server_core.wasm",
+    "count": 40,
+    "hintCount": 0,
+    "dictionaryBytes": 1293136,
+    "wasmBytes": 297831,
+    "metrics": {
+      "moduleInitialization": {
+        "samples": 1,
+        "minMs": 3.222,
+        "p50Ms": 3.222,
+        "p95Ms": 3.222,
+        "meanMs": 3.222
+      },
+      "firstDictionaryAndGameCreation": {
+        "samples": 1,
+        "minMs": 119.56,
+        "p50Ms": 119.56,
+        "p95Ms": 119.56,
+        "meanMs": 119.56
+      },
+      "legacyCreateDestroy": {
+        "samples": 40,
+        "minMs": 14.821,
+        "p50Ms": 19.382,
+        "p95Ms": 23.396,
+        "meanMs": 19.24
+      },
+      "legacyCreateRestoreViewDestroy": {
+        "samples": 40,
+        "minMs": 16.141,
+        "p50Ms": 21.876,
+        "p95Ms": 36.977,
+        "meanMs": 24.628
+      },
+      "nativeViewAndJsonDecode": {
+        "samples": 40,
+        "minMs": 0.391,
+        "p50Ms": 0.491,
+        "p95Ms": 0.948,
+        "meanMs": 0.561
+      },
+      "adapterColdCreateRestore": {
+        "samples": 1,
+        "minMs": 82.467,
+        "p50Ms": 82.467,
+        "p95Ms": 82.467,
+        "meanMs": 82.467
+      },
+      "adapterWarmCreateRestoreViewDestroy": {
+        "samples": 40,
+        "minMs": 16.541,
+        "p50Ms": 17.779,
+        "p95Ms": 20.894,
+        "meanMs": 18.172
+      },
+      "httpColdRoomCreate": {
+        "samples": 1,
+        "minMs": 334.03,
+        "p50Ms": 334.03,
+        "p95Ms": 334.03,
+        "meanMs": 334.03
+      },
+      "workerdAlternatingPrivateReads": {
+        "samples": 40,
+        "minMs": 14.355,
+        "p50Ms": 17.003,
+        "p95Ms": 21.079,
+        "meanMs": 17.433
+      }
+    },
+    "wasmHeapBeforeCreate": 33554432,
+    "savedGameBytes": 2659,
+    "wasmHeapAfterScenario": 40304640,
+    "scenarioFingerprint": "e94aeebc0ceaac518c721bdb885ddaebe54f44ad8fa526419e0d094e46086544",
+    "wasmHeapAfterRepeatedHandles": 40304640
+  }
+}

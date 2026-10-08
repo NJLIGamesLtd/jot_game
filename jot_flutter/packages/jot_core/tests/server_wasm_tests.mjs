@@ -73,3 +73,51 @@ test('server Wasm uses a precompiled module, private views, and bounded shared l
   assert.equal(memory.buffer.byteLength, allocated);
   assert(allocated < 64 * 1024 * 1024);
 });
+
+test('one immutable UTF8 dictionary pointer creates isolated games after memory growth', async () => {
+  let memory;
+  const module = await createJotModule({
+    instantiateWasm(imports, receiveInstance) {
+      const instance = new WebAssembly.Instance(compiled, imports);
+      memory = Object.values(instance.exports).find(value => value instanceof WebAssembly.Memory);
+      receiveInstance(instance, compiled);
+      return instance.exports;
+    },
+  });
+  const allocate = module.cwrap('malloc', 'number', ['number']);
+  const release = module.cwrap('free', null, ['number']);
+  const create = module.cwrap('jot_create', 'number', ['number', 'number', 'number']);
+  const execute = module.cwrap('jot_execute', 'string', ['number', 'string']);
+  const destroy = module.cwrap('jot_destroy', null, ['number']);
+  const bytes = new TextEncoder().encode(dictionary);
+  const pointer = allocate(bytes.length + 1);
+  assert(pointer);
+  new Uint8Array(memory.buffer).set(bytes, pointer);
+  new Uint8Array(memory.buffer)[pointer + bytes.length] = 0;
+  const handles = [];
+  let largeAllocation;
+  try {
+    const first = create(pointer, 12345, -1);
+    assert(first); handles.push(first);
+    const command = (handle, value) => JSON.parse(execute(handle, JSON.stringify(value)));
+    assert(command(first, { op: 'fill' }).ok);
+    const saved = command(first, { op: 'save' }).save;
+    const sizeBefore = memory.buffer.byteLength;
+    largeAllocation = allocate(sizeBefore);
+    assert(largeAllocation);
+    assert(memory.buffer.byteLength > sizeBefore);
+    assert.deepEqual(new Uint8Array(memory.buffer, pointer, bytes.length), bytes);
+    const second = create(pointer, 98765, -1);
+    assert(second); handles.push(second);
+    assert.equal(command(second, { op: 'state' }).state.dictionaryWords, 143722);
+    assert.deepEqual(command(second, { op: 'state' }).state.rack, []);
+    assert(command(second, { op: 'restore', save: saved }).ok);
+    assert.deepEqual(command(second, { op: 'save' }).save, saved);
+    assert(command(second, { op: 'pass' }).ok);
+    assert.deepEqual(command(first, { op: 'save' }).save, saved);
+  } finally {
+    for (const handle of handles) destroy(handle);
+    if (largeAllocation) release(largeAllocation);
+    release(pointer);
+  }
+});

@@ -169,7 +169,7 @@ class Search {
     if (square) {
       const int letter = square->letter - 'A';
       if (letter < 0 || letter >= 26) return;
-      const int next = trie_[node].children[letter];
+      const int next = game_.dictionary().child(node, letter);
       if (next != -1) visit(row + dr, col + dc, next, used, connected);
       return;
     }
@@ -185,7 +185,7 @@ class Search {
         if (seen_blank) continue;
         seen_blank = true;
         for (int letter = 0; letter < 26 && !exhausted_; ++letter) {
-          const int next = trie_[node].children[letter];
+          const int next = game_.dictionary().child(node, letter);
           if (next == -1 || !(allowed & (1u << letter))) continue;
           placements_.push_back({static_cast<int>(index), row, col,
                                  static_cast<char>('A' + letter)});
@@ -196,7 +196,7 @@ class Search {
         const int letter = tile.letter - 'A';
         if (letter < 0 || letter >= 26 || (seen_letters & (1u << letter))) continue;
         seen_letters |= 1u << letter;
-        const int next = trie_[node].children[letter];
+        const int next = game_.dictionary().child(node, letter);
         if (next == -1 || !(allowed & (1u << letter))) continue;
         placements_.push_back({static_cast<int>(index), row, col, tile.letter});
         visit(row + dr, col + dc, next, used | (1u << index), new_connection);

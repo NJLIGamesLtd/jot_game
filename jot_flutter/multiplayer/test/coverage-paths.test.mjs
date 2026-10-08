@@ -64,6 +64,32 @@ test('server adapter recovers initialization failure, rejects invalid responses 
   } finally { await f.close(); }
 });
 
+test('server dictionary allocation is bounded, survives room changes and recovers initialization failures', covered, async () => {
+  for (const kind of ['allocation', 'dictionary_write']) {
+    const f = await fixture();
+    try {
+      await f.call('/__test__/fault', { kind });
+      const failure = await f.call('/__test__/core', {}, 500);
+      assert.match(failure.error, kind === 'allocation' ? /could not be allocated/ : /initialization failure/);
+      const failedStats = await f.call('/__test__/allocations', {});
+      assert.equal(failedStats.releases, kind === 'allocation' ? 0 : 1);
+      const host = await f.create();
+      const guest = await f.call(`${host.path}/join`, { requestId: randomUUID(), inviteToken: host.inviteToken });
+      const ready = await f.call('/__test__/allocations', {});
+      assert.equal(ready.allocations - failedStats.allocations, 1);
+      for (let i = 0; i < 10; i++) {
+        const view = await f.call(host.path, undefined, 200, i % 2 ? guest.playerToken : host.playerToken);
+        assert.equal(view.state.viewerPlayer, i % 2);
+      }
+      const another = await f.create();
+      await f.call(another.path, undefined, 200, another.playerToken);
+      const warmed = await f.call('/__test__/allocations', {});
+      assert.equal(warmed.allocations, ready.allocations);
+      assert.ok(warmed.games > ready.games);
+    } finally { await f.close(); }
+  }
+});
+
 test('request parser bounds streams, validates JSON and returns explicit route and outage errors', covered, async () => {
   const f = await fixture();
   try {

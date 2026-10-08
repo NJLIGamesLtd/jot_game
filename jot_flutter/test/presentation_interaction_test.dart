@@ -265,7 +265,7 @@ void main() {
       await mount(tester, game);
       await tester.tap(find.byTooltip('How to play'));
       await tester.pumpAndSettle();
-      expect(find.text('The chess of crosswords'), findsOneWidget);
+      expect(find.widgetWithText(AlertDialog, 'How to play'), findsOneWidget);
       await tapText(tester, 'Got it');
       await tapText(tester, 'New game');
       await tapText(tester, 'Cancel');

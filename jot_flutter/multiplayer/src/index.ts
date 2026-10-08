@@ -3,6 +3,9 @@ import { createGame, type CoreGame, type CoreResult } from './core';
 
 type JsonObject = Record<string, unknown>;
 type Reply = { status: number; body: JsonObject };
+// The C++ JSON schema is dynamic. Keep the RPC body opaque in TypeScript,
+// while its concrete plain object is still transmitted by value at runtime.
+type RpcReply = { status: number; body: object };
 type Meta = {
   roomId: string;
   createRequestId: string;
@@ -140,19 +143,19 @@ export class GameRoom extends DurableObject<Env> {
   private expiry(meta: Meta): Reply | undefined {
     return meta.expiresAt <= Date.now() ? failure(410, 'room_expired', 'This game has expired. Start a new online game.') : undefined;
   }
-  // JSON gives these RPC endpoints a fixed serializable boundary. The dynamic
-  // C++ state schema remains a JSON object rather than a cross-isolate proxy.
-  async create(roomId: string, nonce: string, hostToken: string, hostHash: string, inviteToken: string, seed: number): Promise<string> {
-    return JSON.stringify(await this.createRoom(roomId, nonce, hostToken, hostHash, inviteToken, seed));
+  // Replies contain only plain data, which RPC transmits by value. Encode JSON
+  // once at the HTTP boundary rather than encoding and parsing it between Workers.
+  async create(roomId: string, nonce: string, hostToken: string, hostHash: string, inviteToken: string, seed: number): Promise<RpcReply> {
+    return this.createRoom(roomId, nonce, hostToken, hostHash, inviteToken, seed);
   }
-  async join(inviteToken: string, nonce: string, guestToken: string, guestHash: string): Promise<string> {
-    return JSON.stringify(await this.joinRoom(inviteToken, nonce, guestToken, guestHash));
+  async join(inviteToken: string, nonce: string, guestToken: string, guestHash: string): Promise<RpcReply> {
+    return this.joinRoom(inviteToken, nonce, guestToken, guestHash);
   }
-  async get(bearerHash: string): Promise<string> {
-    return JSON.stringify(await this.getRoom(bearerHash));
+  async get(bearerHash: string): Promise<RpcReply> {
+    return this.getRoom(bearerHash);
   }
-  async act(bearerHash: string, revision: number, nonce: string, actionJson: string): Promise<string> {
-    return JSON.stringify(await this.actRoom(bearerHash, revision, nonce, JSON.parse(actionJson) as JsonObject));
+  async act(bearerHash: string, revision: number, nonce: string, actionJson: string): Promise<RpcReply> {
+    return this.actRoom(bearerHash, revision, nonce, JSON.parse(actionJson) as JsonObject);
   }
   private async createRoom(roomId: string, nonce: string, hostToken: string, hostHash: string, inviteToken: string, seed: number): Promise<Reply> {
     const engine = await createGame(seed);
@@ -306,8 +309,7 @@ function bearer(request: Request): string | undefined {
   const match = /^Bearer ([a-f0-9]{64})$/.exec(request.headers.get('Authorization') ?? '');
   return match?.[1];
 }
-function decodeReply(value: string): Reply { return JSON.parse(value) as Reply; }
-function response(reply: Reply, origin?: string): Response {
+function response(reply: RpcReply, origin?: string): Response {
   return Response.json(reply.body, { status: reply.status, headers: {
     'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer', 'X-Content-Type-Options': 'nosniff',
     ...(origin ? { 'Access-Control-Allow-Origin': origin, 'Vary': 'Origin',
@@ -342,7 +344,7 @@ export default {
         const roomId = (await hash(body.requestId)).slice(0, 32);
         const hostToken = randomToken(); const inviteToken = randomToken();
         const seed = crypto.getRandomValues(new Uint32Array(1))[0];
-        const reply = decodeReply(await env.ROOMS.getByName(roomId).create(roomId, body.requestId, hostToken, await hash(hostToken), inviteToken, seed));
+        const reply = await env.ROOMS.getByName(roomId).create(roomId, body.requestId, hostToken, await hash(hostToken), inviteToken, seed);
         return response({ ...reply, status: reply.status === 200 ? 201 : reply.status }, allowedOrigin);
       }
       const roomId = match![1]; const operation = match![2];
@@ -352,18 +354,18 @@ export default {
         const body = parsed.body;
         if (!exactKeys(body, ['inviteToken', 'requestId']) || !token(body.inviteToken) || !requestId(body.requestId)) return response(failure(400, 'invalid_join', 'The invitation and a random UUIDv4 requestId are required.'), allowedOrigin);
         const guestToken = randomToken();
-        return response(decodeReply(await env.ROOMS.getByName(roomId).join(body.inviteToken, body.requestId, guestToken, await hash(guestToken))), allowedOrigin);
+        return response(await env.ROOMS.getByName(roomId).join(body.inviteToken, body.requestId, guestToken, await hash(guestToken)), allowedOrigin);
       }
       if (!playerToken) return response(failure(401, 'player_required', 'A player session is required.'), allowedOrigin);
-      const bearerHash = await hash(playerToken);
-      if (!operation && request.method === 'GET') return response(decodeReply(await env.ROOMS.getByName(roomId).get(bearerHash)), allowedOrigin);
+      const bearerHash = rateKey;
+      if (!operation && request.method === 'GET') return response(await env.ROOMS.getByName(roomId).get(bearerHash), allowedOrigin);
       if (operation === 'actions' && request.method === 'POST') {
         const parsed = await readBody(request);
         if (parsed.status !== 200) return response(parsed, allowedOrigin);
         const body = parsed.body;
         if (!exactKeys(body, ['revision', 'requestId', 'command']) || !integer(body.revision, 0, Number.MAX_SAFE_INTEGER)
           || !requestId(body.requestId) || !command(body.command)) return response(failure(400, 'invalid_action', 'This action is not valid.'), allowedOrigin);
-        return response(decodeReply(await env.ROOMS.getByName(roomId).act(bearerHash, body.revision as number, body.requestId, JSON.stringify(body.command))), allowedOrigin);
+        return response(await env.ROOMS.getByName(roomId).act(bearerHash, body.revision as number, body.requestId, JSON.stringify(body.command)), allowedOrigin);
       }
       return response(failure(405, 'method_not_allowed', 'This method is not allowed.'), allowedOrigin);
     } catch (error) {

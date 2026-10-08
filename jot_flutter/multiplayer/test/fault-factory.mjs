@@ -18,10 +18,29 @@ export default async function factory(options) {
     const actual = actualCwrap(name, ...args);
     return (...parameters) => {
       const fault = globalThis.__jotFault;
+      if (name === 'malloc') {
+        if (fault?.kind === 'allocation') {
+          globalThis.__jotFault = undefined;
+          return 0;
+        }
+        const pointer = actual(...parameters);
+        globalThis.__jotAllocationCount = (globalThis.__jotAllocationCount ?? 0) + 1;
+        if (fault?.kind === 'dictionary_write') {
+          globalThis.__jotFault = undefined;
+          const original = Uint8Array.prototype.set;
+          Uint8Array.prototype.set = function () {
+            Uint8Array.prototype.set = original;
+            throw new Error('Simulated dictionary initialization failure');
+          };
+        }
+        return pointer;
+      }
+      if (name === 'free') globalThis.__jotReleaseCount = (globalThis.__jotReleaseCount ?? 0) + 1;
       if (name === 'jot_create' && fault?.kind === 'create') {
         globalThis.__jotFault = undefined;
         return 0;
       }
+      if (name === 'jot_create') globalThis.__jotCreateCount = (globalThis.__jotCreateCount ?? 0) + 1;
       if (name === 'jot_execute' && fault) {
         const command = JSON.parse(parameters[1]);
         if (command.op === fault.op) {

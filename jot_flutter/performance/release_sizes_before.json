@@ -1,0 +1,19 @@
+{
+  "measurement_context": {
+    "date": "2026-10-08",
+    "host": "Intel Core i9-9880H, macOS x86_64",
+    "flutter": "3.41.9 / Dart 3.11.5",
+    "node": "26.5.0",
+    "emscripten": "6.0.3-git",
+    "baseline_commit": "b0bbb60",
+    "limits": "Observations on this shared host, not guaranteed limits on other hardware. No physical-device frame measurements.",
+    "phase": "beginner release, before performance changes"
+  },
+  "size_metric": "sum of regular-file lengths; symlinks ignored; uncompressed (filesystem blocks differ)",
+  "macos_app": 44462403,
+  "web_app": 38497987,
+  "macos_core": 683120,
+  "web_wasm": 297831,
+  "web_main": 2571265,
+  "web_main_gzip_bytes": 756010
+}

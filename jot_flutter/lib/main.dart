@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'game_controller.dart';
 import 'browser_location.dart';
+import 'turn_guidance.dart';
 
 const ink = Color(0xff183c38);
 const paper = Color(0xfff6f2e8);
@@ -80,11 +81,14 @@ class GamePage extends StatefulWidget {
 
 class _GamePageState extends State<GamePage> {
   late final GameController game;
+  late final AppLifecycleListener _lifecycle;
   int? selected;
   @override
   void initState() {
     super.initState();
     game = widget.controller ?? GameController(initialUri: widget.initialUri);
+    _lifecycle = AppLifecycleListener(onStateChange: _onLifecycleChanged);
+    _onLifecycleChanged(WidgetsBinding.instance.lifecycleState);
     if (widget.initialize) {
       unawaited(game.initialize());
     }
@@ -92,8 +96,17 @@ class _GamePageState extends State<GamePage> {
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     game.dispose();
     super.dispose();
+  }
+
+  void _onLifecycleChanged(AppLifecycleState? state) {
+    game.setAppVisible(
+      state != AppLifecycleState.hidden &&
+          state != AppLifecycleState.paused &&
+          state != AppLifecycleState.detached,
+    );
   }
 
   bool get canAct => game.canAct;
@@ -136,6 +149,38 @@ class _GamePageState extends State<GamePage> {
       return;
     }
     await placeAt(index, drag: drag);
+  }
+
+  Future<void> refillRack() async {
+    if (!mounted || !canAct) return;
+    final before = game.state!;
+    final player = before['currentPlayer'];
+    final room = game.roomId;
+    final seat = game.yourPlayer;
+    final online = game.isOnline;
+    final hasPlacedTiles = (before['board'] as List).any(
+      (tile) => tile is Map && tile['pending'] == true,
+    );
+    setState(() => selected = null);
+    if (hasPlacedTiles) {
+      final revision = before['revision'];
+      if (revision is! int || !await game.act('recall')) return;
+      if (!mounted || !canAct) return;
+      final after = game.state!;
+      if (game.roomId != room ||
+          game.yourPlayer != seat ||
+          game.isOnline != online ||
+          after['currentPlayer'] != player ||
+          after['revision'] != revision + 1 ||
+          (after['board'] as List).any(
+            (tile) => tile is Map && tile['pending'] == true,
+          )) {
+        return;
+      }
+    }
+    if (canAct && game.state!['canDraw'] == true) {
+      await game.act('fill');
+    }
   }
 
   Future<void> placeAt(int index, {RackTileDrag? drag}) async {
@@ -366,15 +411,53 @@ class _GamePageState extends State<GamePage> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('The chess of crosswords'),
+        title: const Text('How to play'),
         content: const SingleChildScrollView(
-          child: Text(
-            'Draw eight tiles, choosing vowels and consonants. Touch a tile, drag it onto the board, and release to place it. Drag a staged tile to move it, or tap it to take it back. You can also select a rack tile and tap an empty square.\n\n'
-            'Your first word must cover a centre square. Later plays must join the board. Place tiles in one continuous row or column, reusing existing letters. Every word formed must be in the dictionary.\n\n'
-            'Letter and word bonuses apply to newly placed tiles. Playing all eight tiles earns 100 extra points. Blank tiles score zero.\n\n'
-            'Hint suggests a legal move; Place hint stages it for review. Play commits your move. Two consecutive passes end the game. Remaining tile points are deducted at the end.\n\n'
-            'Online game creates an invite link for a friend on another device. Open or paste the full link to join. Each player sees their own rack. Games update automatically and reconnect safely. Keep using the same browser or device to retain your seat.\n\n'
-            'Pinch or scroll to zoom the board. Local games are saved on this device. Online rooms are saved on the server; your private player access stays on this device.',
+          child: SizedBox(
+            width: 440,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Make connected words and earn more points than your opponent. Each turn has three steps.',
+                ),
+                RuleSection(
+                  title: '1. Draw 8 tiles',
+                  description:
+                      'Fill your rack before every turn. Choose vowels and consonants, or use Fill rack to choose for you. You may play with fewer tiles when both of your bags are empty.',
+                ),
+                RuleSection(
+                  title: '2. Build a word',
+                  description:
+                      'Touch or click a tile, drag it onto the board, and release. Your first word must cover at least one of the four outlined centre squares. Later words must connect to letters already on the board. Place your new tiles in one row or column with no gaps. You can also tap a tile, then tap a square.',
+                ),
+                RuleSection(
+                  title: '3. Check and play',
+                  description:
+                      'The preview checks every word your tiles make and shows the points you would earn. When your rack is ready and the placement is valid, press Play word to finish your turn. A preview alone does not play the word.',
+                ),
+                RuleSection(
+                  title: 'Helpful controls',
+                  description:
+                      'Recall returns your unplayed tiles to your rack. You can also tap a placed tile to take it back, or drag it to another square. Shuffle rearranges your rack. Hint suggests a word; Place hint puts it on the board for you to review. Pass skips your turn.',
+                ),
+                RuleSection(
+                  title: 'Scoring and finishing',
+                  description:
+                      'L2 and L3 multiply a new tile\'s points by 2 and 3. W2 and W3 multiply the whole word. Bonuses apply only when a tile is first played on that square. A blank can be any letter and scores zero. Playing all eight tiles earns 100 extra points. Two consecutive passes end the game, or a player ends it by using their final tile after emptying their bags. Unplayed tile points are deducted at the end.',
+                ),
+                RuleSection(
+                  title: 'Play with a friend',
+                  description:
+                      'Choose Online game and send your invite link to a friend. They open the link on their device. You each see your own rack, and the game tells you whose turn it is. You can also choose two players on one device from New game.',
+                ),
+                RuleSection(
+                  title: 'Come back any time',
+                  description:
+                      'Your games are saved on this device. Use the same device or browser to return to them. Pinch or scroll to zoom the board.',
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
@@ -394,24 +477,36 @@ class _GamePageState extends State<GamePage> {
       final state = game.state;
       return Scaffold(
         appBar: AppBar(
-          title: const Row(
-            children: [
-              Text(
+          title: LayoutBuilder(
+            builder: (context, box) {
+              const logo = Text(
                 'jot',
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.w900,
                   letterSpacing: -2,
                 ),
-              ),
-              SizedBox(width: 16),
-              Flexible(
-                child: Text(
-                  'THE CHESS OF CROSSWORDS',
-                  style: TextStyle(fontSize: 10, letterSpacing: 1.5),
-                ),
-              ),
-            ],
+              );
+              if (box.maxWidth < 240) {
+                return const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: logo,
+                );
+              }
+              return const Row(
+                children: [
+                  logo,
+                  SizedBox(width: 16),
+                  Flexible(
+                    child: Text(
+                      'THE CHESS OF CROSSWORDS',
+                      style: TextStyle(fontSize: 10, letterSpacing: 1.5),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
           actions: [
             IconButton(
@@ -451,14 +546,16 @@ class _GamePageState extends State<GamePage> {
                 builder: (context, box) {
                   final wide = box.maxWidth >= 760;
                   final controls = controlPanel(state);
-                  final board = JotBoard(
-                    state: state,
-                    onTap: canAct ? placeAt : null,
-                    canDrop: canDrop,
-                    onDrop: dropAt,
-                    dragForRack: (rackIndex, letter) =>
-                        dragForRack(rackIndex, assignedLetter: letter),
-                    canDrag: canAct,
+                  final board = RepaintBoundary(
+                    child: JotBoard(
+                      state: state,
+                      onTap: canAct ? placeAt : null,
+                      canDrop: canAct ? canDrop : null,
+                      onDrop: dropAt,
+                      dragForRack: (rackIndex, letter) =>
+                          dragForRack(rackIndex, assignedLetter: letter),
+                      canDrag: canAct,
+                    ),
                   );
                   if (wide) {
                     return Center(
@@ -469,7 +566,12 @@ class _GamePageState extends State<GamePage> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(child: board),
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.topCenter,
+                                  child: board,
+                                ),
+                              ),
                               const SizedBox(width: 28),
                               SizedBox(
                                 width: 300,
@@ -643,6 +745,8 @@ class _GamePageState extends State<GamePage> {
           ),
         ),
         const SizedBox(height: 12),
+        turnGuide(state),
+        const SizedBox(height: 12),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -663,11 +767,14 @@ class _GamePageState extends State<GamePage> {
                   : null,
               child: Text('Consonant · ${remaining['consonants']}'),
             ),
-            TextButton(
-              onPressed: canAct && state['canDraw'] == true
-                  ? () => game.act('fill')
-                  : null,
-              child: const Text('Fill rack'),
+            Tooltip(
+              message: 'Automatically draw tiles until your rack is full.',
+              child: TextButton(
+                onPressed: canAct && state['canDraw'] == true
+                    ? () => game.act('fill')
+                    : null,
+                child: const Text('Fill rack'),
+              ),
             ),
           ],
         ),
@@ -796,6 +903,15 @@ class _GamePageState extends State<GamePage> {
             style: const TextStyle(color: copper, fontSize: 12),
           ),
         ],
+        if (game.failed)
+          TextButton(
+            onPressed: game.busy
+                ? null
+                : game.isOnline || game.joiningOnline
+                ? game.retryOnline
+                : game.initialize,
+            child: const Text('Retry'),
+          ),
         if (!over && current == state['robotPlayer'] && !game.busy)
           OutlinedButton(
             onPressed: () => game.act('robot'),
@@ -848,15 +964,18 @@ class _GamePageState extends State<GamePage> {
           spacing: 8,
           runSpacing: 4,
           children: [
-            TextButton.icon(
-              onPressed: canAct
-                  ? () {
-                      selected = null;
-                      game.act('recall');
-                    }
-                  : null,
-              icon: const Icon(Icons.undo, size: 18),
-              label: const Text('Recall'),
+            Tooltip(
+              message: 'Return all unplayed tiles to your rack.',
+              child: TextButton.icon(
+                onPressed: canAct
+                    ? () {
+                        selected = null;
+                        game.act('recall');
+                      }
+                    : null,
+                icon: const Icon(Icons.undo, size: 18),
+                label: const Text('Recall'),
+              ),
             ),
             TextButton.icon(
               onPressed: canAct && state['canShuffle'] == true
@@ -868,21 +987,27 @@ class _GamePageState extends State<GamePage> {
               icon: const Icon(Icons.shuffle, size: 18),
               label: const Text('Shuffle'),
             ),
-            TextButton.icon(
-              onPressed: canAct && state['canHint'] == true
-                  ? () => game.act('hint')
-                  : null,
-              icon: const Icon(Icons.lightbulb_outline, size: 18),
-              label: const Text('Hint'),
+            Tooltip(
+              message: 'Suggest a legal word after your rack is ready.',
+              child: TextButton.icon(
+                onPressed: canAct && state['canHint'] == true
+                    ? () => game.act('hint')
+                    : null,
+                icon: const Icon(Icons.lightbulb_outline, size: 18),
+                label: const Text('Hint'),
+              ),
             ),
-            TextButton(
-              onPressed: canAct
-                  ? () {
-                      selected = null;
-                      game.act('pass');
-                    }
-                  : null,
-              child: const Text('Pass'),
+            Tooltip(
+              message: 'Skip your turn. Two consecutive passes end the game.',
+              child: TextButton(
+                onPressed: canAct
+                    ? () {
+                        selected = null;
+                        game.act('pass');
+                      }
+                    : null,
+                child: const Text('Pass'),
+              ),
             ),
           ],
         ),
@@ -910,6 +1035,120 @@ class _GamePageState extends State<GamePage> {
       ],
     );
   }
+
+  Widget turnGuide(Map<String, dynamic> state) {
+    final guide = TurnGuidance.fromState(
+      state,
+      isOnline: game.isOnline,
+      joined: game.joined,
+      connected: game.connected,
+      joining: game.joiningOnline,
+      busy: game.busy,
+      failed: game.failed,
+      yourPlayer: game.yourPlayer,
+    );
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      child: Container(
+        key: const ValueKey('turn-guidance'),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xffe4ece5),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (guide.step != null) ...[
+              Wrap(
+                spacing: 12,
+                runSpacing: 4,
+                children: [
+                  for (final entry in const {
+                    1: 'Draw',
+                    2: 'Place',
+                    3: 'Play',
+                  }.entries)
+                    Text(
+                      '${entry.key} ${entry.value}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: entry.key == guide.step
+                            ? ink
+                            : const Color(0xff657976),
+                        fontWeight: entry.key == guide.step
+                            ? FontWeight.w800
+                            : FontWeight.w400,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+            ],
+            Text(
+              guide.title,
+              style: const TextStyle(
+                color: ink,
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              guide.message,
+              style: const TextStyle(color: ink, height: 1.4),
+            ),
+            if (guide.needsRefill && canAct) ...[
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                key: const ValueKey('refill-rack-action'),
+                onPressed: refillRack,
+                icon: Icon(guide.returnBeforeRefill ? Icons.undo : Icons.add),
+                label: Text(
+                  guide.returnBeforeRefill
+                      ? 'Return tiles & fill rack'
+                      : (state['rack'] as List).isEmpty
+                      ? 'Fill rack to begin'
+                      : 'Refill to ${state['rackSize'] ?? 8} tiles',
+                ),
+              ),
+            ],
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: showRules,
+                style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                child: const Text('How to play'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RuleSection extends StatelessWidget {
+  final String title;
+  final String description;
+  const RuleSection({
+    super.key,
+    required this.title,
+    required this.description,
+  });
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 18),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 6),
+        Text(description, style: const TextStyle(height: 1.45)),
+      ],
+    ),
+  );
 }
 
 class RackTileFace extends StatelessWidget {
@@ -966,7 +1205,7 @@ class RackTileFace extends StatelessWidget {
   );
 }
 
-class JotBoard extends StatelessWidget {
+class JotBoard extends StatefulWidget {
   final Map<String, dynamic> state;
   final void Function(int)? onTap;
   final bool Function(RackTileDrag)? canDrop;
@@ -983,9 +1222,67 @@ class JotBoard extends StatelessWidget {
     this.canDrag = false,
   });
   @override
+  State<JotBoard> createState() => _JotBoardState();
+}
+
+class _JotBoardState extends State<JotBoard> {
+  // Keep at most one visual face per square. Interaction callbacks are built
+  // from the current widget, so cached painting never retains a stale move.
+  final _faceKeys = List<(String, bool, String)?>.filled(256, null);
+  final _faces = List<Widget?>.filled(256, null);
+  final _cellKeys = List<Object?>.filled(256, null);
+  final _cells = List<Widget?>.filled(256, null);
+
+  Widget face(int index, String label, Map? tile) {
+    final key = (label, tile != null, '${tile?['score'] ?? 0}');
+    if (_faceKeys[index] != key) {
+      _faceKeys[index] = key;
+      _faces[index] = Stack(
+        children: [
+          if (label.isNotEmpty)
+            Center(
+              child: FittedBox(
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: ink,
+                      fontSize: tile != null ? 19 : 9,
+                      fontWeight: tile != null
+                          ? FontWeight.w800
+                          : FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (tile != null)
+            Positioned(
+              right: 2,
+              bottom: 0,
+              child: Text(
+                key.$3,
+                style: const TextStyle(fontSize: 7, color: ink),
+              ),
+            ),
+        ],
+      );
+    }
+    return _faces[index]!;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final state = widget.state;
+    final onTap = widget.onTap;
+    final dragForRack = widget.dragForRack;
+    final canDrag = widget.canDrag;
     final board = state['board'] as List;
     final bonuses = state['bonuses'] as List;
+    final firstMove = !board.whereType<Map>().any(
+      (tile) => tile['pending'] != true,
+    );
     return AspectRatio(
       aspectRatio: 1,
       child: ClipRRect(
@@ -1008,6 +1305,10 @@ class JotBoard extends StatelessWidget {
               itemBuilder: (context, i) {
                 final tile = board[i] as Map?;
                 final bonus = bonuses[i] as String;
+                final startSquare =
+                    firstMove &&
+                    (i ~/ 16 == 7 || i ~/ 16 == 8) &&
+                    (i % 16 == 7 || i % 16 == 8);
                 final colour = tile != null
                     ? (tile['pending'] == true
                           ? const Color(0xffeac29b)
@@ -1022,99 +1323,105 @@ class JotBoard extends StatelessWidget {
                         _ => const Color(0xffe9e9de),
                       };
                 final label = tile != null ? tile['letter'] as String : bonus;
-                Widget cell = Semantics(
-                  key: ValueKey('board-cell-$i'),
-                  button: onTap != null,
-                  excludeSemantics: true,
-                  onTap: onTap == null ? null : () => onTap!(i),
-                  label:
-                      'Row ${i ~/ 16 + 1}, column ${i % 16 + 1}, '
-                      '${label.isEmpty ? 'empty' : label}',
-                  child: Material(
+                final drag =
+                    tile != null &&
+                        tile['pending'] == true &&
+                        tile['rack'] is int &&
+                        dragForRack != null
+                    ? dragForRack(tile['rack'] as int, label)
+                    : null;
+                final cellKey = (
+                  label,
+                  '${tile?['score'] ?? 0}',
+                  colour,
+                  startSquare,
+                  drag,
+                  drag != null && canDrag,
+                );
+                if (_cellKeys[i] != cellKey) {
+                  _cellKeys[i] = cellKey;
+                  Widget cell = Material(
                     color: colour,
                     child: InkWell(
-                      onTap: onTap == null ? null : () => onTap!(i),
-                      child: Stack(
-                        children: [
-                          Center(
-                            child: FittedBox(
-                              child: Padding(
-                                padding: const EdgeInsets.all(2),
-                                child: Text(
-                                  label,
-                                  style: TextStyle(
-                                    color: ink,
-                                    fontSize: tile != null ? 19 : 9,
-                                    fontWeight: tile != null
-                                        ? FontWeight.w800
-                                        : FontWeight.w600,
-                                  ),
-                                ),
+                      // Read the current callback; this cell may survive turns.
+                      onTap: () => widget.onTap?.call(i),
+                      child: face(i, label, tile),
+                    ),
+                  );
+                  if (drag != null) {
+                    final stagedContents = cell;
+                    cell = LayoutBuilder(
+                      builder: (context, constraints) =>
+                          Draggable<RackTileDrag>(
+                            data: drag,
+                            maxSimultaneousDrags: canDrag ? 1 : 0,
+                            rootOverlay: true,
+                            feedback: SizedBox(
+                              key: const ValueKey('drag-tile-feedback'),
+                              width: constraints.maxWidth,
+                              height: constraints.maxHeight,
+                              child: RackTileFace(tile: tile!, selected: true),
+                            ),
+                            childWhenDragging: Opacity(
+                              opacity: .25,
+                              child: stagedContents,
+                            ),
+                            child: stagedContents,
+                          ),
+                    );
+                  }
+                  final contents = cell;
+                  _cells[i] = DragTarget<RackTileDrag>(
+                    onWillAcceptWithDetails: (details) =>
+                        (widget.state['board'] as List)[i] == null &&
+                        widget.canDrop?.call(details.data) == true,
+                    onAcceptWithDetails: (details) =>
+                        widget.onDrop?.call(details.data, i),
+                    builder: (context, candidates, rejected) => Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        contents,
+                        if (startSquare)
+                          IgnorePointer(
+                            child: Container(
+                              key: ValueKey('first-move-centre-$i'),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: copper, width: 2),
                               ),
                             ),
                           ),
-                          if (tile != null)
-                            Positioned(
-                              right: 2,
-                              bottom: 0,
-                              child: Text(
-                                '${tile['score'] ?? 0}',
-                                style: const TextStyle(fontSize: 7, color: ink),
+                        if (candidates.isNotEmpty)
+                          IgnorePointer(
+                            child: Container(
+                              key: ValueKey('drop-highlight-$i'),
+                              decoration: BoxDecoration(
+                                color: copper.withValues(alpha: .2),
+                                border: Border.all(color: copper, width: 2),
                               ),
                             ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-                if (tile != null &&
-                    tile['pending'] == true &&
-                    tile['rack'] is int &&
-                    dragForRack != null) {
-                  final stagedContents = cell;
-                  cell = LayoutBuilder(
-                    builder: (context, constraints) => Draggable<RackTileDrag>(
-                      data: dragForRack!(
-                        tile['rack'] as int,
-                        tile['letter'] as String,
-                      ),
-                      maxSimultaneousDrags: canDrag ? 1 : 0,
-                      rootOverlay: true,
-                      feedback: SizedBox(
-                        key: const ValueKey('drag-tile-feedback'),
-                        width: constraints.maxWidth,
-                        height: constraints.maxHeight,
-                        child: RackTileFace(tile: tile, selected: true),
-                      ),
-                      childWhenDragging: Opacity(
-                        opacity: .25,
-                        child: stagedContents,
-                      ),
-                      child: stagedContents,
+                          ),
+                      ],
                     ),
                   );
                 }
-                final contents = cell;
-                return DragTarget<RackTileDrag>(
-                  onWillAcceptWithDetails: (details) =>
-                      tile == null && canDrop?.call(details.data) == true,
-                  onAcceptWithDetails: (details) =>
-                      onDrop?.call(details.data, i),
-                  builder: (context, candidates, rejected) => Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      contents,
-                      if (candidates.isNotEmpty)
-                        IgnorePointer(
-                          child: Container(
-                            key: ValueKey('drop-highlight-$i'),
-                            decoration: BoxDecoration(
-                              color: copper.withValues(alpha: .2),
-                              border: Border.all(color: copper, width: 2),
-                            ),
-                          ),
-                        ),
-                    ],
+                return Semantics(
+                  key: ValueKey('board-cell-$i'),
+                  button: onTap != null,
+                  excludeSemantics: true,
+                  onTap: onTap == null ? null : () => onTap(i),
+                  label:
+                      'Row ${i ~/ 16 + 1}, column ${i % 16 + 1}, '
+                      '${label.isEmpty ? 'empty' : label}',
+                  hint: startSquare
+                      ? 'Start here: your first word must cover one outlined centre square.'
+                      : null,
+                  child: ExcludeFocus(
+                    excluding: onTap == null,
+                    child: IgnorePointer(
+                      ignoring:
+                          onTap == null && !canDrag && widget.canDrop == null,
+                      child: _cells[i]!,
+                    ),
                   ),
                 );
               },

@@ -11,6 +11,13 @@ export default {
     const path = new URL(request.url).pathname;
     if (!path.startsWith('/__test__/')) return actualWorker.fetch(request, env);
     const input = await request.json();
+    if (path === '/__test__/allocations') {
+      return Response.json({
+        allocations: globalThis.__jotAllocationCount ?? 0,
+        releases: globalThis.__jotReleaseCount ?? 0,
+        games: globalThis.__jotCreateCount ?? 0,
+      });
+    }
     if (path === '/__test__/fault') {
       globalThis.__jotFault = input;
       return Response.json({ ok: true });
@@ -30,7 +37,7 @@ export default {
     if (path === '/__test__/rpc') {
       const stub = env.ROOMS.getByName(input.roomId);
       const result = await stub[input.method](...input.args);
-      return Response.json(result === undefined ? {} : JSON.parse(result));
+      return Response.json(result === undefined ? {} : result);
     }
     if (path === '/__test__/invoke') {
       const testEnv = { ...env };

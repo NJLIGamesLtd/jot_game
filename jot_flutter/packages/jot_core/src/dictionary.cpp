@@ -34,6 +34,7 @@ Dictionary::Dictionary(std::string_view word_lines) {
   // how many nodes will be needed before allocating the trie. This avoids a
   // large transient vector copy and unused capacity in constrained runtimes.
   std::size_t node_count = 1;
+  std::size_t longest_word = 0;
   std::string_view previous;
   for (const auto& word : words_) {
     std::size_t common = 0;
@@ -42,25 +43,52 @@ Dictionary::Dictionary(std::string_view word_lines) {
       ++common;
     }
     node_count += word.size() - common;
+    longest_word = std::max(longest_word, word.size());
     previous = word;
   }
   nodes_.reserve(node_count);
   nodes_.emplace_back();
+  // Sorted words create each parent's children in alphabetical order. Retain
+  // just their parent indices while constructing, rather than a dense scratch
+  // trie. Node IDs match the original insertion traversal exactly.
+  std::vector<int> parents;
+  parents.reserve(node_count - 1);
+  std::vector<int> path;
+  path.reserve(longest_word + 1);
+  path.push_back(0);
+  previous = {};
   for (const auto& word : words_) {
-    int node = 0;
-    for (const char letter : word) {
-      const auto index = static_cast<std::size_t>(letter - 'A');
-      int next = nodes_[node].children[index];
-      if (next == -1) {
-        next = static_cast<int>(nodes_.size());
-        // Growing the vector invalidates references, so assign the child by
-        // index before allocating the new node.
-        nodes_[node].children[index] = next;
-        nodes_.emplace_back();
-      }
-      node = next;
+    std::size_t common = 0;
+    while (common < previous.size() && common < word.size() &&
+           previous[common] == word[common]) {
+      ++common;
     }
-    nodes_[node].terminal = true;
+    path.resize(common + 1);
+    for (std::size_t offset = common; offset < word.size(); ++offset) {
+      const int parent = path.back();
+      nodes_[parent].child_mask |= 1u << (word[offset] - 'A');
+      parents.push_back(parent);
+      path.push_back(static_cast<int>(nodes_.size()));
+      nodes_.emplace_back();
+    }
+    nodes_[path.back()].terminal = true;
+    previous = word;
+  }
+  std::uint32_t first_child = 0;
+  for (auto& node : nodes_) {
+    node.first_child = first_child;
+    node.byte_prefix[0] = child_count(node.child_mask & 0xffu);
+    node.byte_prefix[1] = child_count(node.child_mask & 0xffffu);
+    node.byte_prefix[2] = child_count(node.child_mask & 0xffffffu);
+    first_child += child_count(node.child_mask);
+  }
+  children_.resize(first_child);
+  for (std::size_t index = 0; index < parents.size(); ++index) {
+    children_[nodes_[parents[index]].first_child++] = static_cast<int>(index + 1);
+  }
+  // first_child acted as a write cursor above; restore each immutable offset.
+  for (auto& node : nodes_) {
+    node.first_child -= child_count(node.child_mask);
   }
 }
 
@@ -69,7 +97,7 @@ bool Dictionary::contains(std::string_view word) const {
   int node = 0;
   for (const char letter : word) {
     if (letter < 'A' || letter > 'Z') return false;
-    node = nodes_[node].children[static_cast<std::size_t>(letter - 'A')];
+    node = child(node, letter - 'A');
     if (node == -1) return false;
   }
   return nodes_[node].terminal;

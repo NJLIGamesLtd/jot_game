@@ -86,6 +86,33 @@ class GameController extends ChangeNotifier {
   bool busy = true;
   bool failed = false;
   bool _disposed = false;
+  bool _appVisible = true;
+  bool _refreshOnResume = false;
+
+  /// Hidden views stop automatic reads. A visible view immediately catches up,
+  /// after any already-running action has durably completed.
+  void setAppVisible(bool visible) {
+    if (_disposed || _appVisible == visible) return;
+    _appVisible = visible;
+    if (!visible) {
+      _pollTimer?.cancel();
+      return;
+    }
+    _refreshOnResume = isOnline;
+    _startPolling();
+    _refreshAfterResume();
+  }
+
+  void _refreshAfterResume() {
+    if (!_refreshOnResume || !_appVisible || _disposed) return;
+    if (!isOnline || !_automaticReconnect || state?['over'] == true) {
+      _refreshOnResume = false;
+      return;
+    }
+    if (busy || _requestInFlight) return;
+    _refreshOnResume = false;
+    unawaited(_onlineRequest(_generation));
+  }
 
   Future<void> initialize() async {
     final generation = ++_generation;
@@ -148,6 +175,7 @@ class GameController extends ChangeNotifier {
       if (_setup != null) {
         await _finishSetup(generation);
       } else if (_session != null) {
+        await _releaseLocalCore();
         await _onlineRequest(generation);
         _startPolling();
       } else {
@@ -167,8 +195,8 @@ class GameController extends ChangeNotifier {
   }
 
   Future<void> _loadLocal(int generation) async {
-    await _core?.close().catchError((Object _) {});
-    _core = null;
+    await _releaseLocalCore();
+    if (!_active(generation)) return;
     final dictionary =
         await (_dictionaryLoader?.call() ??
             rootBundle.loadString('assets/dictionary/words.txt'));
@@ -208,6 +236,12 @@ class GameController extends ChangeNotifier {
     }
   }
 
+  Future<void> _releaseLocalCore() async {
+    final core = _core;
+    _core = null;
+    await core?.close().catchError((Object _) {});
+  }
+
   Future<Map<String, dynamic>> _send(Map<String, dynamic> command) async {
     final result =
         jsonDecode(await _core!.execute(jsonEncode(command)))
@@ -226,9 +260,11 @@ class GameController extends ChangeNotifier {
     return result;
   }
 
-  Future<void> act(String op, [Map<String, dynamic> fields = const {}]) async {
+  /// Reports whether this action was accepted by the engine or online server.
+  /// Guided follow-up actions must stop after a rejection or lost connection.
+  Future<bool> act(String op, [Map<String, dynamic> fields = const {}]) async {
     if (isOnline) {
-      if (!canAct || _disposed) return;
+      if (!canAct || _disposed) return false;
       busy = true;
       _pendingAction = {
         'revision': onlineRevision,
@@ -237,9 +273,10 @@ class GameController extends ChangeNotifier {
       };
       _notify();
       final generation = _generation;
+      var accepted = false;
       try {
         if (await _saveSession()) {
-          await _onlineRequest(generation);
+          accepted = await _onlineRequest(generation);
         } else {
           _pendingAction = null;
           message =
@@ -251,38 +288,41 @@ class GameController extends ChangeNotifier {
           _notify();
         }
       }
-      return;
+      return accepted;
     }
-    if (joiningOnline) return;
-    if (busy || _core == null || _disposed) return;
+    if (joiningOnline) return false;
+    if (busy || _core == null || _disposed) return false;
     busy = true;
     _notify();
     try {
       final result = await _send({'op': op, ...fields});
       if (result['ok'] == true) {
         await _save();
-        await _computerTurn();
-        await _save();
+        if (await _computerTurn()) await _save();
+        return true;
       }
+      return false;
     } catch (error) {
       message = 'The action could not finish: $error';
+      return false;
     } finally {
       busy = false;
       _notify();
     }
   }
 
-  Future<void> _computerTurn() async {
+  Future<bool> _computerTurn() async {
     if (state == null ||
         state!['over'] == true ||
         state!['currentPlayer'] != state!['robotPlayer']) {
-      return;
+      return false;
     }
     message = 'The computer is thinking…';
     _notify();
     await _send({'op': 'robot'});
     message = 'Computer: $message';
     _notify();
+    return true;
   }
 
   Future<void> _save() async {
@@ -310,7 +350,10 @@ class GameController extends ChangeNotifier {
   }
 
   void _notify() {
-    if (!_disposed) notifyListeners();
+    if (!_disposed) {
+      notifyListeners();
+      _refreshAfterResume();
+    }
   }
 
   @override
@@ -507,6 +550,8 @@ class GameController extends ChangeNotifier {
       _acceptOnline(response);
       final saved = await _saveSession();
       if (!_active(generation)) return;
+      await _releaseLocalCore();
+      if (!_active(generation)) return;
       if (saved) await _preferences!.remove(onlineSetupKey);
       await _preferences!.setBool(localModeKey, false);
       _startPolling();
@@ -518,7 +563,10 @@ class GameController extends ChangeNotifier {
     }
   }
 
-  void _acceptOnline(Map<String, dynamic> response, {bool action = false}) {
+  ({bool notify, bool persist}) _acceptOnline(
+    Map<String, dynamic> response, {
+    bool action = false,
+  }) {
     if (response['state'] is! Map || response['revision'] is! int) {
       throw const MultiplayerException(
         'The server returned an incomplete game snapshot.',
@@ -526,15 +574,24 @@ class GameController extends ChangeNotifier {
       );
     }
     final revision = response['revision'] as int;
-    if (revision < onlineRevision) return;
+    if (revision < onlineRevision) return (notify: false, persist: false);
     final changed = revision != onlineRevision;
     final reconnected = !connected;
+    final joinedChanged = joined != (response['joined'] == true);
+    final inviteChanged =
+        response['inviteUrl'] is String && inviteUrl != response['inviteUrl'];
+    final previousMessage = message;
+    final presentationChanged =
+        action || changed || reconnected || failed || state == null;
+    final persist = changed || joinedChanged || inviteChanged;
     _session!['revision'] = revision;
     _session!['joined'] = response['joined'] == true;
     if (response['inviteUrl'] is String) {
       _session!['inviteUrl'] = response['inviteUrl'];
     }
-    state = Map<String, dynamic>.from(response['state'] as Map);
+    if (presentationChanged) {
+      state = Map<String, dynamic>.from(response['state'] as Map);
+    }
     if (action || changed) {
       hint = response['hint'] is Map
           ? Map<String, dynamic>.from(response['hint'] as Map)
@@ -560,6 +617,11 @@ class GameController extends ChangeNotifier {
         message.startsWith('Loading')) {
       message = 'Your turn. Draw tiles or place your next word.';
     }
+    if (state!['over'] == true) _pollTimer?.cancel();
+    return (
+      notify: presentationChanged || persist || message != previousMessage,
+      persist: persist,
+    );
   }
 
   void _networkFailure(Object error) {
@@ -571,16 +633,17 @@ class GameController extends ChangeNotifier {
     if (state == null) failed = true;
   }
 
-  Future<void> _onlineRequest(int generation) async {
+  Future<bool> _onlineRequest(int generation) async {
     if (_requestInFlight) {
-      if (_pendingAction == null) return;
+      if (_pendingAction == null) return false;
       await _requestDone[generation]?.future;
     }
-    if (!_active(generation) || _session == null) return;
+    if (!_active(generation) || _session == null) return false;
     _requests.add(generation);
     final requestDone = Completer<void>();
     _requestDone[generation] = requestDone;
     final pending = _pendingAction;
+    var notify = false;
     try {
       final response = pending == null
           ? await _api.read(roomId!, _session!['playerToken'] as String)
@@ -589,12 +652,19 @@ class GameController extends ChangeNotifier {
               _session!['playerToken'] as String,
               pending,
             );
-      if (!_active(generation)) return;
-      _acceptOnline(response, action: pending != null);
+      if (!_active(generation)) return false;
+      final accepted = _acceptOnline(response, action: pending != null);
+      notify = accepted.notify;
       if (pending != null) _pendingAction = null;
-      await _saveSession();
+      if (accepted.persist || pending != null || storageWarning != null) {
+        final previousWarning = storageWarning;
+        await _saveSession();
+        notify = notify || storageWarning != previousWarning;
+      }
+      return pending != null && response['ok'] == true;
     } catch (error) {
-      if (!_active(generation)) return;
+      if (!_active(generation)) return false;
+      notify = true;
       if (error is MultiplayerException && error.snapshot != null) {
         _acceptOnline(error.snapshot!, action: true);
         _pendingAction = null;
@@ -609,20 +679,30 @@ class GameController extends ChangeNotifier {
           _pendingAction = null;
           await _saveSession();
         }
-        if (!_active(generation)) return;
+        if (!_active(generation)) return false;
         _networkFailure(error);
       }
+      return false;
     } finally {
       _requests.remove(generation);
       _requestDone.remove(generation);
       requestDone.complete();
-      if (_active(generation)) _notify();
+      if (_active(generation)) {
+        if (notify) _notify();
+        _refreshAfterResume();
+      }
     }
   }
 
   void _startPolling() {
     _pollTimer?.cancel();
-    if (_disposed || !isOnline || !_automaticReconnect) return;
+    if (_disposed ||
+        !_appVisible ||
+        !isOnline ||
+        !_automaticReconnect ||
+        state?['over'] == true) {
+      return;
+    }
     _pollTimer = Timer.periodic(pollInterval, (_) {
       if (!_disposed && !busy && !_requestInFlight && isOnline) {
         unawaited(_onlineRequest(_generation));
@@ -711,6 +791,7 @@ class GameController extends ChangeNotifier {
     try {
       await _preferences!.setBool(localModeKey, false);
       await _preferences!.remove(onlineSetupKey);
+      await _releaseLocalCore();
       await _onlineRequest(generation);
       _startPolling();
     } finally {
