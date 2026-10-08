@@ -1,0 +1,15 @@
+CREATE OR REPLACE TABLE t_move
+(
+	idMove SMALLINT NOT NULL,
+	idGame BIGINT NOT NULL,
+	idUser INT NOT NULL,
+	xStart TINYINT NOT NULL,
+	yStart TINYINT NOT NULL,
+	xEnd TINYINT NOT NULL,
+	yEnd TINYINT NOT NULL,
+	nPoints SMALLINT NOT NULL,
+	vcWord VARCHAR(16),
+	vcRack VARCHAR(8) NOT NULL,
+	bmModifer INT,
+	KEY (idGame, idMove)
+);

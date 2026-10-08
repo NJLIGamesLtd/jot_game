@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent"
+android:orientation="vertical"
+android:padding="10dp"
+android:paddingLeft="50dp"
+android:paddingRight="50dp" >
+
+
+<TextView
+android:id="@+id/tile_blank"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_octagon"
+android:gravity="center"
+android:text="&#x25a1;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_A"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_octagon"
+android:gravity="center"
+android:text="A&#x2081;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_E"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_octagon"
+android:gravity="center"
+android:text="E&#x2081;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_I"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_octagon"
+android:gravity="center"
+android:text="I&#x2081;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_O"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_octagon"
+android:gravity="center"
+android:text="O&#x2081;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_U"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_octagon"
+android:gravity="center"
+android:text="U&#x2081;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_B"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="B&#x2083;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_C"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="C&#x2083;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_D"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="D&#x2082;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_F"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="F&#x2084;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_G"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="G&#x2082;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_H"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="H&#x2084;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_J"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="J&#x2088;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_K"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="K&#x2086;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_L"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="L&#x2081;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_M"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="M&#x2083;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_N"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="N&#x2081;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_P"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="P&#x2083;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_Q"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="Q&#x2081;&#x2080;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_R"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="R&#x2081;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_S"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="S&#x2081;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_T"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="T&#x2081;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_V"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="V&#x2085;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_W"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="W&#x2084;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_X"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="X&#x2087;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_Y"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="Y&#x2084;"
+android:textStyle="normal" />
+
+<TextView
+android:id="@+id/tile_Z"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:layout_margin="5dp"
+android:background="@drawable/tile_square"
+android:gravity="center"
+android:text="Z&#x2089;"
+android:textStyle="normal" />
+
+</LinearLayout>

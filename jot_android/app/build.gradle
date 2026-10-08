@@ -1,0 +1,60 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 35
+    defaultConfig {
+        applicationId "com.jot.jot"
+        minSdkVersion 26
+        targetSdkVersion 35
+        versionCode 35
+        versionName "Version 1.24"
+
+		// Enable multidex support.
+		multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+    buildToolsVersion = '30.0.3'
+    namespace 'com.jot.jot'
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+	
+  	// Import the Firebase BoM
+  	implementation platform('com.google.firebase:firebase-bom:32.2.3')
+
+  	// When using the BoM, you don't specify versions in Firebase library dependencies
+
+  	// Declare the dependency for the Firebase SDK for Google Analytics
+  	implementation 'com.google.firebase:firebase-messaging'
+  	implementation 'com.google.firebase:firebase-analytics'
+
+  	// Declare the dependencies for any other desired Firebase products
+  	// For example, declare the dependencies for Firebase Authentication and Cloud Firestore
+  	implementation 'com.google.firebase:firebase-auth'
+  	implementation 'com.google.firebase:firebase-firestore'
+
+	implementation 'com.google.android.gms:play-services-ads:22.3.0'
+    implementation 'com.google.android.gms:play-services-ads-lite:22.3.0'
+    implementation 'com.google.android.gms:play-services-auth:20.6.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.google.android.material:material:1.1.0'
+
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    testImplementation 'junit:junit:4.13.1'
+    implementation 'com.facebook.android:facebook-login:latest.release'
+	implementation 'com.facebook.android:facebook-android-sdk:latest.release'
+	implementation 'com.facebook.android:facebook-share:latest.release'
+}
+
+apply plugin: 'com.google.gms.google-services'
+// com.google.gms.googleservices.GoogleServicesPlugin.config.disableVersionCheck = true

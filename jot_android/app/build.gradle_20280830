@@ -1,0 +1,66 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 33
+    defaultConfig {
+        applicationId "com.jot.jot"
+        minSdkVersion 30
+        targetSdkVersion 33
+        versionCode 28
+        versionName "Version 1.15"
+
+		// Enable multidex support.
+		multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+    buildToolsVersion = '30.0.2'
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+	
+  	// Import the Firebase BoM
+  	implementation platform('com.google.firebase:firebase-bom:29.0.3')
+
+  	// When using the BoM, you don't specify versions in Firebase library dependencies
+
+  	// Declare the dependency for the Firebase SDK for Google Analytics
+  	implementation 'com.google.firebase:firebase-messaging'
+  	implementation 'com.google.firebase:firebase-analytics'
+
+  	// Declare the dependencies for any other desired Firebase products
+  	// For example, declare the dependencies for Firebase Authentication and Cloud Firestore
+  	implementation 'com.google.firebase:firebase-auth'
+  	implementation 'com.google.firebase:firebase-firestore'
+
+	implementation 'com.google.android.gms:play-services-ads:19.4.0'
+    implementation 'com.google.android.gms:play-services-auth:18.1.0'
+    implementation 'com.google.android.gms:play-services-location:20.0.0'
+
+	//implementation 'com.firebaseui:firebase-ui-auth:4.2.0'
+    //implementation 'com.google.android.gms:play-services-ads:19.4.0'
+    //implementation 'com.google.android.gms:play-services-auth:18.1.0'
+    //implementation 'com.google.firebase:firebase-messaging:20.3.0'
+    //implementation 'com.google.firebase:firebase-auth:19.4.0'
+    //implementation 'com.google.firebase:firebase-core:17.5.1'
+    //implementation 'com.google.firebase:firebase-database:19.5.0'
+    //implementation 'com.google.firebase:firebase-firestore:21.7.1'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.material:material:1.1.0'
+    testImplementation 'junit:junit:4.13.1'
+    implementation 'com.facebook.android:facebook-login:latest.release'
+	implementation 'com.facebook.android:facebook-android-sdk:latest.release'
+	implementation 'com.facebook.android:facebook-share:latest.release'
+}
+
+apply plugin: 'com.google.gms.google-services'
+com.google.gms.googleservices.GoogleServicesPlugin.config.disableVersionCheck = true

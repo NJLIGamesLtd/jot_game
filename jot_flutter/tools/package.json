@@ -1,0 +1,11 @@
+{
+  "name": "jot-browser-tests",
+  "private": true,
+  "scripts": {
+    "test": "node --test test_web_bridge.cjs test_web_worker.cjs test_pages_proxy.cjs",
+    "coverage": "c8 --allowExternal --all --src ../web --include '**/web/jot_bridge.js' --include '**/web/jot_worker.js' --include '**/web/_worker.js' --reporter=text --reporter=lcov --reporter=json-summary --reports-dir=../coverage/browser --100 --per-file npm test && node check_browser_coverage.cjs"
+  },
+  "devDependencies": {
+    "c8": "12.0.0"
+  }
+}

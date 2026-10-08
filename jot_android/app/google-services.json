@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "801282808478",
+    "firebase_url": "https://jot8-37b4d.firebaseio.com",
+    "project_id": "jot8-37b4d",
+    "storage_bucket": "jot8-37b4d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:801282808478:android:c6275a78ef8e91ab",
+        "android_client_info": {
+          "package_name": "com.jot.jot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "801282808478-2phk986vidm6o884jsbjttfil2lqjvel.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB20TWtiKMJtiXQe0fXojuw1gZc3LzRPxc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "801282808478-2phk986vidm6o884jsbjttfil2lqjvel.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

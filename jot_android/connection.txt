@@ -1,0 +1,315 @@
+I/onTouchEvent(DOWN): getY()=1289.0 event.getRawY()=1356.0938
+I/onTouchEvent(MOVE): event.getRawY()=1355.3668
+I/TileView.onLayout(): 305, 1073, 440, 1208
+I/doScrollByPos(MOVE): posy=1354.4303 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1354.4303
+I/TileView.onLayout(): 302, 1071, 437, 1206
+I/doScrollByPos(MOVE): posy=1353.504 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1353.504
+I/TileView.onLayout(): 300, 1070, 435, 1205
+I/onTouchEvent(MOVE): event.getRawY()=1353.0496
+I/doScrollByPos(MOVE): posy=1352.1337 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1352.1337
+I/TileView.onLayout(): 297, 1069, 432, 1204
+I/doScrollByPos(MOVE): posy=1351.1921 height=135
+I/zygote64: Do full code cache collection, code=252KB, data=176KB
+I/zygote64: After code cache collection, code=195KB, data=117KB
+I/onTouchEvent(MOVE): event.getRawY()=1351.1921
+I/TileView.onLayout(): 296, 1068, 431, 1203
+I/onTouchEvent(MOVE): event.getRawY()=1350.2537
+I/doScrollByPos(MOVE): posy=1347.2091 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1347.2091
+I/TileView.onLayout(): 297, 1064, 432, 1199
+I/doScrollByPos(MOVE): posy=1339.1313 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1339.1313
+I/TileView.onLayout(): 303, 1056, 438, 1191
+I/doScrollByPos(MOVE): posy=1328.9462 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1328.9462
+I/TileView.onLayout(): 309, 1045, 444, 1180
+I/onTouchEvent(MOVE): event.getRawY()=1317.1426
+I/doScrollByPos(MOVE): posy=1302.4515 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1302.4515
+I/TileView.onLayout(): 324, 1019, 459, 1154
+I/doScrollByPos(MOVE): posy=1286.2341 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1286.2341
+I/TileView.onLayout(): 332, 1003, 467, 1138
+I/doScrollByPos(MOVE): posy=1263.4524 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1263.4524
+I/TileView.onLayout(): 345, 980, 480, 1115
+I/doScrollByPos(MOVE): posy=1227.7766 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1227.7766
+I/TileView.onLayout(): 364, 944, 499, 1079
+I/doScrollByPos(MOVE): posy=1197.0758 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1197.0758
+I/TileView.onLayout(): 377, 914, 512, 1049
+I/doScrollByPos(MOVE): posy=1176.6932 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1176.6932
+I/TileView.onLayout(): 389, 893, 524, 1028
+I/doScrollByPos(MOVE): posy=1160.2174 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1160.2174
+I/TileView.onLayout(): 395, 877, 530, 1012
+I/doScrollByPos(MOVE): posy=1143.743 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1143.743
+I/TileView.onLayout(): 398, 860, 533, 995
+I/doScrollByPos(MOVE): posy=1124.7379 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1124.7379
+I/TileView.onLayout(): 401, 841, 536, 976
+I/onTouchEvent(MOVE): event.getRawY()=1105.2771
+I/doScrollByPos(MOVE): posy=1092.0924 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1092.0924
+I/TileView.onLayout(): 403, 809, 538, 944
+I/doScrollByPos(MOVE): posy=1080.473 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1080.473
+I/TileView.onLayout(): 403, 797, 538, 932
+I/onTouchEvent(MOVE): event.getRawY()=1067.6125
+I/doScrollByPos(MOVE): posy=1055.1362 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1055.1362
+I/TileView.onLayout(): 403, 772, 538, 907
+I/doScrollByPos(MOVE): posy=1043.1166 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1043.1166
+I/TileView.onLayout(): 405, 760, 540, 895
+I/onTouchEvent(MOVE): event.getRawY()=1030.5724
+I/doScrollByPos(MOVE): posy=1020.0526 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1020.0526
+I/TileView.onLayout(): 410, 737, 545, 872
+I/doScrollByPos(MOVE): posy=1011.4542 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1011.4542
+I/TileView.onLayout(): 412, 728, 547, 863
+I/onTouchEvent(MOVE): event.getRawY()=1003.3044
+I/doScrollByPos(MOVE): posy=994.57544 height=135
+I/onTouchEvent(MOVE): event.getRawY()=994.57544
+I/TileView.onLayout(): 416, 711, 551, 846
+I/doScrollByPos(MOVE): posy=986.39874 height=135
+I/onTouchEvent(MOVE): event.getRawY()=986.39874
+I/TileView.onLayout(): 418, 703, 553, 838
+I/onTouchEvent(MOVE): event.getRawY()=978.08887
+I/doScrollByPos(MOVE): posy=970.42 height=135
+I/onTouchEvent(MOVE): event.getRawY()=970.42
+I/TileView.onLayout(): 425, 687, 560, 822
+I/doScrollByPos(MOVE): posy=963.6456 height=135
+I/onTouchEvent(MOVE): event.getRawY()=963.6456
+I/TileView.onLayout(): 425, 680, 560, 815
+I/doScrollByPos(MOVE): posy=957.23486 height=135
+I/onTouchEvent(MOVE): event.getRawY()=957.23486
+I/TileView.onLayout(): 427, 674, 562, 809
+I/doScrollByPos(MOVE): posy=948.94073 height=135
+I/onTouchEvent(MOVE): event.getRawY()=948.94073
+I/TileView.onLayout(): 432, 665, 567, 800
+I/doScrollByPos(MOVE): posy=939.7311 height=135
+I/onTouchEvent(MOVE): event.getRawY()=939.7311
+I/TileView.onLayout(): 436, 656, 571, 791
+I/doScrollByPos(MOVE): posy=932.51434 height=135
+I/onTouchEvent(MOVE): event.getRawY()=932.51434
+I/TileView.onLayout(): 437, 649, 572, 784
+I/doScrollByPos(MOVE): posy=927.8676 height=135
+I/onTouchEvent(MOVE): event.getRawY()=927.8676
+I/TileView.onLayout(): 439, 644, 574, 779
+I/doScrollByPos(MOVE): posy=924.0883 height=135
+I/onTouchEvent(MOVE): event.getRawY()=924.0883
+I/TileView.onLayout(): 439, 641, 574, 776
+I/doScrollByPos(MOVE): posy=918.75903 height=135
+I/onTouchEvent(MOVE): event.getRawY()=918.75903
+I/TileView.onLayout(): 439, 635, 574, 770
+I/doScrollByPos(MOVE): posy=910.68475 height=135
+I/onTouchEvent(MOVE): event.getRawY()=910.68475
+I/TileView.onLayout(): 442, 627, 577, 762
+I/doScrollByPos(MOVE): posy=899.1675 height=135
+I/onTouchEvent(MOVE): event.getRawY()=899.1675
+I/TileView.onLayout(): 446, 616, 581, 751
+I/doScrollByPos(MOVE): posy=881.2829 height=135
+I/onTouchEvent(MOVE): event.getRawY()=881.2829
+I/TileView.onLayout(): 452, 598, 587, 733
+I/doScrollByPos(MOVE): posy=869.1127 height=135
+I/onTouchEvent(MOVE): event.getRawY()=869.1127
+I/TileView.onLayout(): 457, 586, 592, 721
+
+I/doScrollByPos(MOVE): posy=870.7206 height=135
+I/onTouchEvent(MOVE): event.getRawY()=870.7206
+I/TileView.onLayout(): 457, 587, 592, 722
+D/ViewRootImpl@b5ba5a0[GameActivity]: ViewPostIme pointer 1
+I/onTouchEvent(UP): m_layoutParams.y=587 height=135
+I/System.out: placeTile(P, 524, 654)
+
+
+
+
+
+
+
+I/Before parent: 432 : 1311
+I/onTouchEvent(DOWN): getY()=1311.0 event.getRawY()=1378.5938
+I/onTouchEvent(MOVE): event.getRawY()=1377.8906
+I/TileView.onLayout(): 432, 1095, 567, 1230
+I/doScrollByPos(MOVE): posy=1377.4495 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1377.4495
+I/TileView.onLayout(): 432, 1094, 567, 1229
+I/onTouchEvent(MOVE): event.getRawY()=1376.303
+I/doScrollByPos(MOVE): posy=1374.9761 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1374.9761
+I/TileView.onLayout(): 432, 1091, 567, 1226
+I/doScrollByPos(MOVE): posy=1373.0529 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1373.0529
+I/TileView.onLayout(): 432, 1090, 567, 1225
+I/doScrollByPos(MOVE): posy=1366.1721 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1366.1721
+I/TileView.onLayout(): 434, 1083, 569, 1218
+I/doScrollByPos(MOVE): posy=1354.5781 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1354.5781
+I/TileView.onLayout(): 437, 1071, 572, 1206
+I/doScrollByPos(MOVE): posy=1336.6232 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1336.6232
+I/TileView.onLayout(): 444, 1053, 579, 1188
+I/doScrollByPos(MOVE): posy=1328.8304 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1328.8304
+I/TileView.onLayout(): 447, 1045, 582, 1180
+I/onTouchEvent(MOVE): event.getRawY()=1319.864
+I/doScrollByPos(MOVE): posy=1309.4984 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1309.4984
+I/zygote64: Do full code cache collection, code=246KB, data=182KB
+I/TileView.onLayout(): 452, 1026, 587, 1161
+I/zygote64: After code cache collection, code=191KB, data=124KB
+I/doScrollByPos(MOVE): posy=1295.9921 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1295.9921
+I/TileView.onLayout(): 454, 1012, 589, 1147
+I/doScrollByPos(MOVE): posy=1278.585 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1278.585
+I/TileView.onLayout(): 458, 995, 593, 1130
+I/doScrollByPos(MOVE): posy=1258.3705 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1258.3705
+I/TileView.onLayout(): 463, 975, 598, 1110
+I/doScrollByPos(MOVE): posy=1228.5962 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1228.5962
+I/TileView.onLayout(): 471, 945, 606, 1080
+I/doScrollByPos(MOVE): posy=1189.0059 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1189.0059
+I/TileView.onLayout(): 482, 906, 617, 1041
+I/doScrollByPos(MOVE): posy=1165.7666 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1165.7666
+I/TileView.onLayout(): 488, 882, 623, 1017
+I/doScrollByPos(MOVE): posy=1153.6477 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1153.6477
+I/TileView.onLayout(): 494, 870, 629, 1005
+I/doScrollByPos(MOVE): posy=1144.82 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1144.82
+I/TileView.onLayout(): 498, 861, 633, 996
+I/doScrollByPos(MOVE): posy=1134.2465 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1134.2465
+I/TileView.onLayout(): 501, 851, 636, 986
+I/doScrollByPos(MOVE): posy=1120.7922 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1120.7922
+I/TileView.onLayout(): 502, 837, 637, 972
+I/doScrollByPos(MOVE): posy=1104.8206 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1104.8206
+I/TileView.onLayout(): 503, 821, 638, 956
+I/doScrollByPos(MOVE): posy=1074.058 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1074.058
+I/TileView.onLayout(): 507, 791, 642, 926
+I/doScrollByPos(MOVE): posy=1052.6047 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1052.6047
+I/TileView.onLayout(): 513, 769, 648, 904
+I/doScrollByPos(MOVE): posy=1045.9241 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1045.9241
+I/TileView.onLayout(): 515, 762, 650, 897
+I/doScrollByPos(MOVE): posy=1040.1948 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1040.1948
+I/TileView.onLayout(): 515, 757, 650, 892
+I/doScrollByPos(MOVE): posy=1028.2539 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1028.2539
+I/TileView.onLayout(): 513, 745, 648, 880
+I/doScrollByPos(MOVE): posy=1021.9071 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1021.9071
+I/TileView.onLayout(): 512, 738, 647, 873
+I/onTouchEvent(MOVE): event.getRawY()=1015.5283
+I/doScrollByPos(MOVE): posy=1009.09344 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1009.09344
+I/TileView.onLayout(): 511, 726, 646, 861
+I/doScrollByPos(MOVE): posy=1002.4871 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1002.4871
+I/TileView.onLayout(): 510, 719, 645, 854
+I/doScrollByPos(MOVE): posy=995.2187 height=135
+I/onTouchEvent(MOVE): event.getRawY()=995.2187
+I/TileView.onLayout(): 511, 712, 646, 847
+I/doScrollByPos(MOVE): posy=987.0126 height=135
+I/onTouchEvent(MOVE): event.getRawY()=987.0126
+I/TileView.onLayout(): 511, 704, 646, 839
+I/doScrollByPos(MOVE): posy=979.61444 height=135
+I/onTouchEvent(MOVE): event.getRawY()=979.61444
+I/TileView.onLayout(): 510, 696, 645, 831
+I/doScrollByPos(MOVE): posy=973.08307 height=135
+I/onTouchEvent(MOVE): event.getRawY()=973.08307
+I/TileView.onLayout(): 509, 690, 644, 825
+I/onTouchEvent(MOVE): event.getRawY()=967.57294
+I/doScrollByPos(MOVE): posy=962.639 height=135
+I/onTouchEvent(MOVE): event.getRawY()=962.639
+I/TileView.onLayout(): 507, 679, 642, 814
+I/doScrollByPos(MOVE): posy=957.2469 height=135
+I/onTouchEvent(MOVE): event.getRawY()=957.2469
+I/TileView.onLayout(): 507, 674, 642, 809
+I/doScrollByPos(MOVE): posy=953.3716 height=135
+I/onTouchEvent(MOVE): event.getRawY()=953.3716
+I/TileView.onLayout(): 507, 670, 642, 805
+I/onTouchEvent(MOVE): event.getRawY()=950.27356
+I/doScrollByPos(MOVE): posy=948.2397 height=135
+I/onTouchEvent(MOVE): event.getRawY()=948.2397
+I/TileView.onLayout(): 507, 665, 642, 800
+I/doScrollByPos(MOVE): posy=946.0982 height=135
+I/onTouchEvent(MOVE): event.getRawY()=946.0982
+I/TileView.onLayout(): 506, 663, 641, 798
+I/onTouchEvent(MOVE): event.getRawY()=943.3383
+I/doScrollByPos(MOVE): posy=940.7469 height=135
+I/onTouchEvent(MOVE): event.getRawY()=940.7469
+I/TileView.onLayout(): 506, 657, 641, 792
+I/doScrollByPos(MOVE): posy=937.93036 height=135
+I/onTouchEvent(MOVE): event.getRawY()=937.93036
+I/TileView.onLayout(): 505, 654, 640, 789
+I/onTouchEvent(MOVE): event.getRawY()=934.6702
+I/doScrollByPos(MOVE): posy=930.2344 height=135
+I/onTouchEvent(MOVE): event.getRawY()=930.2344
+I/TileView.onLayout(): 504, 647, 639, 782
+I/doScrollByPos(MOVE): posy=925.52826 height=135
+I/onTouchEvent(MOVE): event.getRawY()=925.52826
+I/TileView.onLayout(): 504, 642, 639, 777
+I/doScrollByPos(MOVE): posy=921.624 height=135
+I/onTouchEvent(MOVE): event.getRawY()=921.624
+I/TileView.onLayout(): 504, 638, 639, 773
+I/doScrollByPos(MOVE): posy=918.769 height=135
+I/onTouchEvent(MOVE): event.getRawY()=918.769
+I/TileView.onLayout(): 504, 635, 639, 770
+I/doScrollByPos(MOVE): posy=917.936 height=135
+I/onTouchEvent(MOVE): event.getRawY()=917.936
+I/TileView.onLayout(): 504, 634, 639, 769
+I/doScrollByPos(MOVE): posy=918.15576 height=135
+I/onTouchEvent(MOVE): event.getRawY()=918.15576
+
+I/TileView.onLayout(): 504, 635, 639, 770
+I/onTouchEvent(MOVE): event.getRawY()=919.6397
+I/doScrollByPos(MOVE): posy=920.15625 height=135
+I/onTouchEvent(MOVE): event.getRawY()=920.15625
+D/ViewRootImpl@b5ba5a0[GameActivity]: ViewPostIme pointer 1
+I/onTouchEvent(UP): m_layoutParams.y=853 height=135
+I/System.out: placeTile(P, 571, 920)
+
+
+
+I/TileView.onLayout(): 840, 769, 975, 904
+I/doScrollByPos(MOVE): posy=1049.016 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1049.016
+I/TileView.onLayout(): 841, 766, 976, 901
+I/doScrollByPos(MOVE): posy=1047.1875 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1047.1875
+I/TileView.onLayout(): 841, 764, 976, 899
+I/doScrollByPos(MOVE): posy=1046.3751 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1046.3751
+I/TileView.onLayout(): 841, 763, 976, 898
+I/onTouchEvent(MOVE): event.getRawY()=1045.1328
+I/doScrollByPos(MOVE): posy=1043.7429 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1043.7429
+I/TileView.onLayout(): 840, 760, 975, 895
+I/doScrollByPos(MOVE): posy=1041.8829 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1041.8829
+I/TileView.onLayout(): 840, 758, 975, 893
+I/doScrollByPos(MOVE): posy=1041.5625 height=135
+I/onTouchEvent(MOVE): event.getRawY()=1041.5625
+D/ViewRootImpl@b5ba5a0[GameActivity]: ViewPostIme pointer 1
+I/onTouchEvent(UP): m_layoutParams.y=974 height=135
+I/System.out: placeTile(G, 908, 1041)

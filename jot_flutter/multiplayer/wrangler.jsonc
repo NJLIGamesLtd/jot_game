@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "jot-multiplayer",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-07",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "PUBLIC_ORIGIN": "https://jot-game.pages.dev"
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "ROOMS", "class_name": "GameRoom" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["GameRoom"] }],
+  "ratelimits": [
+    { "name": "INGRESS_LIMITER", "namespace_id": "10871003", "simple": { "limit": 600, "period": 60 } },
+    { "name": "CREATE_LIMITER", "namespace_id": "10871001", "simple": { "limit": 10, "period": 60 } },
+    { "name": "API_LIMITER", "namespace_id": "10871002", "simple": { "limit": 120, "period": 60 } }
+  ],
+  "rules": [
+    { "type": "CompiledWasm", "globs": ["**/*.wasm"], "fallthrough": true },
+    { "type": "Text", "globs": ["**/*.txt"], "fallthrough": true }
+  ],
+  "observability": { "enabled": true, "head_sampling_rate": 0.1 }
+}

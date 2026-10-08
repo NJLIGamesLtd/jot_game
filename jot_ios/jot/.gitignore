@@ -1,0 +1,17 @@
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/.idea/caches
+/node_modules
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+
+
+Podfile.lock
+Pods/
+jot.xcodeproj/xcuserdata/jamesfolk.xcuserdatad/
+jot.xcworkspace/

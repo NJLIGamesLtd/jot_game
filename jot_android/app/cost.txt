@@ -1,0 +1,4 @@
+$0.18/GB	storage
+$0.18/100K	document writes
+$0.06/100K	document reads
+$0.02/100K	document deletes

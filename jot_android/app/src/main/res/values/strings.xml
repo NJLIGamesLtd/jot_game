@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Jot</string>
+    <string name="action_settings">Settings</string>
+	<string name="facebook_app_id">257664671609300</string>
+	<string name="facebook_client_token">e4d517e4378434899b5711a90b12b6f3</string>
+	<string name="fb_login_protocol_scheme">fb257664671609300</string>
+    <string name="default_notification_channel_id" translatable="false">jot_default_channel</string>
+    <string name="default_notification_channel_name" translatable="true">Game</string>
+    <string name="share" translatable="true">String</string>
+</resources>
