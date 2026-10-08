@@ -1,0 +1,132 @@
+{
+  "mode": "profile/release",
+  "platform": "macOS",
+  "viewport": {
+    "width": 2036.0,
+    "height": 1542.0
+  },
+  "device_pixel_ratio": 2.0,
+  "storage": "in-memory test preferences",
+  "seed": 12345,
+  "startup_us": 311040,
+  "frame_build": {
+    "samples": 389,
+    "p50_us": 324,
+    "p95_us": 7947,
+    "p99_us": 11761,
+    "max_us": 15024,
+    "over_16667_us": 0,
+    "over_8333_us": 17
+  },
+  "frame_raster": {
+    "samples": 389,
+    "p50_us": 5580,
+    "p95_us": 21466,
+    "p99_us": 32822,
+    "max_us": 128416,
+    "over_16667_us": 79,
+    "over_8333_us": 157
+  },
+  "frame_total": {
+    "samples": 389,
+    "p50_us": 10102,
+    "p95_us": 24895,
+    "p99_us": 92788,
+    "max_us": 141047,
+    "over_16667_us": 111,
+    "over_8333_us": 217
+  },
+  "largest_response_bytes": 9431,
+  "ui_json_decode": {
+    "samples": 200,
+    "p50_us": 174,
+    "p95_us": 241,
+    "p99_us": 288,
+    "max_us": 3708,
+    "over_16667_us": 0,
+    "over_8333_us": 0
+  },
+  "worker_command_roundtrip": {
+    "state": {
+      "samples": 1,
+      "p50_us": 1302,
+      "p95_us": 1302,
+      "p99_us": 1302,
+      "max_us": 1302,
+      "over_16667_us": 0,
+      "over_8333_us": 0
+    },
+    "save": {
+      "samples": 34,
+      "p50_us": 682,
+      "p95_us": 5929,
+      "p99_us": 8066,
+      "max_us": 8066,
+      "over_16667_us": 0,
+      "over_8333_us": 0
+    },
+    "fill": {
+      "samples": 5,
+      "p50_us": 463,
+      "p95_us": 604,
+      "p99_us": 604,
+      "max_us": 604,
+      "over_16667_us": 0,
+      "over_8333_us": 0
+    },
+    "place": {
+      "samples": 6,
+      "p50_us": 447,
+      "p95_us": 488,
+      "p99_us": 488,
+      "max_us": 488,
+      "over_16667_us": 0,
+      "over_8333_us": 0
+    },
+    "recall": {
+      "samples": 6,
+      "p50_us": 821,
+      "p95_us": 16157,
+      "p99_us": 16157,
+      "max_us": 16157,
+      "over_16667_us": 0,
+      "over_8333_us": 1
+    },
+    "hint": {
+      "samples": 8,
+      "p50_us": 4743,
+      "p95_us": 6505,
+      "p99_us": 6505,
+      "max_us": 6505,
+      "over_16667_us": 0,
+      "over_8333_us": 0
+    },
+    "play": {
+      "samples": 4,
+      "p50_us": 560,
+      "p95_us": 808,
+      "p99_us": 808,
+      "max_us": 808,
+      "over_16667_us": 0,
+      "over_8333_us": 0
+    },
+    "robot": {
+      "samples": 4,
+      "p50_us": 4050,
+      "p95_us": 4922,
+      "p99_us": 4922,
+      "max_us": 4922,
+      "over_16667_us": 0,
+      "over_8333_us": 0
+    }
+  },
+  "measurement_context": {
+    "date": "2026-10-08",
+    "host": "Intel Core i9-9880H, macOS x86_64",
+    "flutter": "3.41.9 / Dart 3.11.5",
+    "source_commit": "f5c4543b07bb6d9c56775cdd9def52745e5c5bad",
+    "phase": "final compact core, cached board, idle/lifecycle controller changes",
+    "limits": "Synthetic live-test gesture frames with fading pointer overlay; in-memory preferences. Shared host observations, not production-device FPS.",
+    "font_configuration": "Both compared profile packages omitted Cupertino font assets; the final production release restores them after an SDK font-reference warning. Game UI/controller/C++ source is unchanged by this font-only restoration."
+  }
+}

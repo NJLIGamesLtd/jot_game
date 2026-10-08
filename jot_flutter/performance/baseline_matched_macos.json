@@ -1,0 +1,132 @@
+{
+  "mode": "profile/release",
+  "platform": "macOS",
+  "viewport": {
+    "width": 2036.0,
+    "height": 1542.0
+  },
+  "device_pixel_ratio": 2.0,
+  "storage": "in-memory test preferences",
+  "seed": 12345,
+  "startup_us": 404069,
+  "frame_build": {
+    "samples": 378,
+    "p50_us": 403,
+    "p95_us": 29251,
+    "p99_us": 40402,
+    "max_us": 48734,
+    "over_16667_us": 22,
+    "over_8333_us": 23
+  },
+  "frame_raster": {
+    "samples": 378,
+    "p50_us": 5865,
+    "p95_us": 26607,
+    "p99_us": 30785,
+    "max_us": 35297,
+    "over_16667_us": 76,
+    "over_8333_us": 142
+  },
+  "frame_total": {
+    "samples": 378,
+    "p50_us": 13367,
+    "p95_us": 42811,
+    "p99_us": 59088,
+    "max_us": 111536,
+    "over_16667_us": 142,
+    "over_8333_us": 247
+  },
+  "largest_response_bytes": 9431,
+  "ui_json_decode": {
+    "samples": 200,
+    "p50_us": 251,
+    "p95_us": 412,
+    "p99_us": 763,
+    "max_us": 797,
+    "over_16667_us": 0,
+    "over_8333_us": 0
+  },
+  "worker_command_roundtrip": {
+    "state": {
+      "samples": 1,
+      "p50_us": 3261,
+      "p95_us": 3261,
+      "p99_us": 3261,
+      "max_us": 3261,
+      "over_16667_us": 0,
+      "over_8333_us": 0
+    },
+    "save": {
+      "samples": 59,
+      "p50_us": 895,
+      "p95_us": 3385,
+      "p99_us": 4394,
+      "max_us": 4394,
+      "over_16667_us": 0,
+      "over_8333_us": 0
+    },
+    "fill": {
+      "samples": 5,
+      "p50_us": 770,
+      "p95_us": 27111,
+      "p99_us": 27111,
+      "max_us": 27111,
+      "over_16667_us": 2,
+      "over_8333_us": 2
+    },
+    "place": {
+      "samples": 6,
+      "p50_us": 773,
+      "p95_us": 1096,
+      "p99_us": 1096,
+      "max_us": 1096,
+      "over_16667_us": 0,
+      "over_8333_us": 0
+    },
+    "recall": {
+      "samples": 6,
+      "p50_us": 1398,
+      "p95_us": 29782,
+      "p99_us": 29782,
+      "max_us": 29782,
+      "over_16667_us": 1,
+      "over_8333_us": 1
+    },
+    "hint": {
+      "samples": 8,
+      "p50_us": 6495,
+      "p95_us": 12959,
+      "p99_us": 12959,
+      "max_us": 12959,
+      "over_16667_us": 0,
+      "over_8333_us": 1
+    },
+    "play": {
+      "samples": 4,
+      "p50_us": 808,
+      "p95_us": 1636,
+      "p99_us": 1636,
+      "max_us": 1636,
+      "over_16667_us": 0,
+      "over_8333_us": 0
+    },
+    "robot": {
+      "samples": 4,
+      "p50_us": 6136,
+      "p95_us": 8253,
+      "p99_us": 8253,
+      "max_us": 8253,
+      "over_16667_us": 0,
+      "over_8333_us": 0
+    }
+  },
+  "measurement_context": {
+    "date": "2026-10-08",
+    "host": "Intel Core i9-9880H, macOS x86_64",
+    "flutter": "3.41.9 / Dart 3.11.5",
+    "source_commit": "b0bbb60",
+    "phase": "Beginner guidance baseline before performance optimization; matched final viewport and harness",
+    "limits": "Synthetic live-test gesture frames with fading pointer overlay; in-memory preferences. Shared host observations, not production-device FPS.",
+    "font_configuration": "Cupertino font dependency retained, matching the final production release."
+  }
+}

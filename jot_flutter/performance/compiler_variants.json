@@ -1,0 +1,238 @@
+{
+  "measurement_context": {
+    "date": "2026-10-08",
+    "host": "Intel Core i9-9880H, macOS x86_64",
+    "flutter": "3.41.9 / Dart 3.11.5",
+    "node": "26.5.0",
+    "emscripten": "6.0.3-git",
+    "baseline_commit": "b0bbb60",
+    "limits": "Observations on this shared host, not guaranteed limits on other hardware. No physical-device frame measurements.",
+    "phase": "compact dictionary / 16 MiB"
+  },
+  "results": {
+    "o3": {
+      "node": "v26.5.0",
+      "modulePath": "/privatebenchmark-build/o3/core.cjs",
+      "wasmPath": "/privatebenchmark-build/o3/core.wasm",
+      "count": 40,
+      "hintCount": 12,
+      "dictionaryBytes": 1293136,
+      "wasmBytes": 300533,
+      "nodeProcessRssBeforeBytes": 151146496,
+      "metrics": {
+        "moduleInitialization": {
+          "samples": 1,
+          "minMs": 2.458,
+          "p50Ms": 2.458,
+          "p95Ms": 2.458,
+          "meanMs": 2.458
+        },
+        "firstDictionaryAndGameCreation": {
+          "samples": 1,
+          "minMs": 70.174,
+          "p50Ms": 70.174,
+          "p95Ms": 70.174,
+          "meanMs": 70.174
+        },
+        "legacyCreateDestroy": {
+          "samples": 40,
+          "minMs": 16.147,
+          "p50Ms": 16.866,
+          "p95Ms": 22.186,
+          "meanMs": 17.355
+        },
+        "legacyCreateRestoreViewDestroy": {
+          "samples": 40,
+          "minMs": 15.931,
+          "p50Ms": 17.917,
+          "p95Ms": 19.788,
+          "meanMs": 17.569
+        },
+        "nativeViewAndJsonDecode": {
+          "samples": 40,
+          "minMs": 0.419,
+          "p50Ms": 0.433,
+          "p95Ms": 0.743,
+          "meanMs": 0.471
+        },
+        "openingHint": {
+          "samples": 12,
+          "minMs": 1.657,
+          "p50Ms": 1.923,
+          "p95Ms": 3.9,
+          "meanMs": 2.131
+        },
+        "midgameHint": {
+          "samples": 12,
+          "minMs": 2.031,
+          "p50Ms": 2.1,
+          "p95Ms": 2.633,
+          "meanMs": 2.173
+        }
+      },
+      "wasmHeapBeforeCreate": 16777216,
+      "savedGameBytes": 2659,
+      "wasmHeapAfterScenario": 16777216,
+      "scenarioFingerprint": "e94aeebc0ceaac518c721bdb885ddaebe54f44ad8fa526419e0d094e46086544",
+      "wasmHeapAfterRepeatedHandles": 16777216,
+      "openingHintFingerprint": "3bae3799d103ca67dc5b3f2d60df6e1b9eba932de564637c16d15b38af1fac57",
+      "midgameHintFingerprint": "39cfc9992dbd76ca0795aab47747c970ed0c59928cf4b66cf871ee62b60324a2",
+      "wasmHeapAfterHints": 16777216,
+      "nodeProcessRssAfterLowLevelBytes": 180576256,
+      "glueBytes": 17044,
+      "flags": [
+        "-O3"
+      ]
+    },
+    "o3-lto": {
+      "node": "v26.5.0",
+      "modulePath": "/privatebenchmark-build/o3-lto/core.cjs",
+      "wasmPath": "/privatebenchmark-build/o3-lto/core.wasm",
+      "count": 40,
+      "hintCount": 12,
+      "dictionaryBytes": 1293136,
+      "wasmBytes": 299097,
+      "nodeProcessRssBeforeBytes": 150761472,
+      "metrics": {
+        "moduleInitialization": {
+          "samples": 1,
+          "minMs": 3.354,
+          "p50Ms": 3.354,
+          "p95Ms": 3.354,
+          "meanMs": 3.354
+        },
+        "firstDictionaryAndGameCreation": {
+          "samples": 1,
+          "minMs": 91.045,
+          "p50Ms": 91.045,
+          "p95Ms": 91.045,
+          "meanMs": 91.045
+        },
+        "legacyCreateDestroy": {
+          "samples": 40,
+          "minMs": 18.598,
+          "p50Ms": 19.64,
+          "p95Ms": 21.263,
+          "meanMs": 19.835
+        },
+        "legacyCreateRestoreViewDestroy": {
+          "samples": 40,
+          "minMs": 17.949,
+          "p50Ms": 20.147,
+          "p95Ms": 24.644,
+          "meanMs": 20.147
+        },
+        "nativeViewAndJsonDecode": {
+          "samples": 40,
+          "minMs": 0.459,
+          "p50Ms": 0.523,
+          "p95Ms": 0.727,
+          "meanMs": 0.543
+        },
+        "openingHint": {
+          "samples": 12,
+          "minMs": 1.968,
+          "p50Ms": 2.286,
+          "p95Ms": 3.935,
+          "meanMs": 2.5
+        },
+        "midgameHint": {
+          "samples": 12,
+          "minMs": 2.221,
+          "p50Ms": 2.716,
+          "p95Ms": 3.13,
+          "meanMs": 2.628
+        }
+      },
+      "wasmHeapBeforeCreate": 16777216,
+      "savedGameBytes": 2659,
+      "wasmHeapAfterScenario": 16777216,
+      "scenarioFingerprint": "e94aeebc0ceaac518c721bdb885ddaebe54f44ad8fa526419e0d094e46086544",
+      "wasmHeapAfterRepeatedHandles": 16777216,
+      "openingHintFingerprint": "3bae3799d103ca67dc5b3f2d60df6e1b9eba932de564637c16d15b38af1fac57",
+      "midgameHintFingerprint": "39cfc9992dbd76ca0795aab47747c970ed0c59928cf4b66cf871ee62b60324a2",
+      "wasmHeapAfterHints": 16777216,
+      "nodeProcessRssAfterLowLevelBytes": 188776448,
+      "glueBytes": 18062,
+      "flags": [
+        "-O3",
+        "-flto"
+      ]
+    },
+    "oz-lto": {
+      "node": "v26.5.0",
+      "modulePath": "/privatebenchmark-build/oz-lto/core.cjs",
+      "wasmPath": "/privatebenchmark-build/oz-lto/core.wasm",
+      "count": 40,
+      "hintCount": 12,
+      "dictionaryBytes": 1293136,
+      "wasmBytes": 178509,
+      "nodeProcessRssBeforeBytes": 151568384,
+      "metrics": {
+        "moduleInitialization": {
+          "samples": 1,
+          "minMs": 1.884,
+          "p50Ms": 1.884,
+          "p95Ms": 1.884,
+          "meanMs": 1.884
+        },
+        "firstDictionaryAndGameCreation": {
+          "samples": 1,
+          "minMs": 276.749,
+          "p50Ms": 276.749,
+          "p95Ms": 276.749,
+          "meanMs": 276.749
+        },
+        "legacyCreateDestroy": {
+          "samples": 40,
+          "minMs": 18.306,
+          "p50Ms": 20.468,
+          "p95Ms": 27.662,
+          "meanMs": 21.266
+        },
+        "legacyCreateRestoreViewDestroy": {
+          "samples": 40,
+          "minMs": 19.405,
+          "p50Ms": 21.08,
+          "p95Ms": 24.418,
+          "meanMs": 21.238
+        },
+        "nativeViewAndJsonDecode": {
+          "samples": 40,
+          "minMs": 1.082,
+          "p50Ms": 1.213,
+          "p95Ms": 1.706,
+          "meanMs": 1.273
+        },
+        "openingHint": {
+          "samples": 12,
+          "minMs": 3.405,
+          "p50Ms": 3.903,
+          "p95Ms": 6.432,
+          "meanMs": 4.03
+        },
+        "midgameHint": {
+          "samples": 12,
+          "minMs": 3.738,
+          "p50Ms": 4.402,
+          "p95Ms": 5.123,
+          "meanMs": 4.271
+        }
+      },
+      "wasmHeapBeforeCreate": 16777216,
+      "savedGameBytes": 2659,
+      "wasmHeapAfterScenario": 16777216,
+      "scenarioFingerprint": "e94aeebc0ceaac518c721bdb885ddaebe54f44ad8fa526419e0d094e46086544",
+      "wasmHeapAfterRepeatedHandles": 16777216,
+      "openingHintFingerprint": "3bae3799d103ca67dc5b3f2d60df6e1b9eba932de564637c16d15b38af1fac57",
+      "midgameHintFingerprint": "39cfc9992dbd76ca0795aab47747c970ed0c59928cf4b66cf871ee62b60324a2",
+      "wasmHeapAfterHints": 16777216,
+      "nodeProcessRssAfterLowLevelBytes": 177684480,
+      "glueBytes": 17815,
+      "flags": [
+        "-Oz",
+        "-flto"
+      ]
+    }
+  }
+}

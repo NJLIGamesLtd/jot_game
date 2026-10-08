@@ -36,6 +36,8 @@ separate web and five-platform native build workflows.
 | UI | Widget, presentation and drag/drop suites | Phone/tablet/desktop layouts, dialogs, controls, accessibility actions, clipboard fallback, touch dragging, moving feedback, highlights, blanks, zoom and rejected drops |
 | Unit / UI | Turn guidance and beginner presentation suites | Draw/place/play instructions, valid-word refill explanations, first-move centre markers, depleted bags, inactive turns, recovery guards and large-text layouts |
 | Integration / Regression | Beginner refill and action-confirmation suites | Actual C++ JAR recovery and 19-point play, preserving committed tiles; accepted/rejected commands, stale online snapshots, lost replies, storage failures and disposal |
+| Regression | `performance_regression_test.dart` | Unchanged polling does no persistence or notification work; background/resume races, completed rooms, storage repair, local-engine release and one-save local actions |
+| UI / Regression | Board cache interaction, rendering and layout suites | Current pointer, keyboard and semantics callbacks, disable/re-enable, live drop rules, refreshed move stamps, tile/bonus colours, blank scores, inherited text scaling and all sixteen rows reachable in short desktop windows |
 
 UI tests run in Flutter's test renderer with real pointer gestures. They are
 automated widget tests, and the local-game integration test uses the actual C++
@@ -48,8 +50,8 @@ Android, iOS, Windows, macOS and Linux platform settings and phone, tablet and
 desktop layouts. Continuous Integration requires this file in the full native
 widget suite. Every native Release build also runs it with the native C++
 transport tests. The web workflow additionally compiles and runs this
-suite and the beginner guidance UI suite in actual Google Chrome, using the browser installed on the
-GitHub runner. `tools/run_tests.py` also runs both Chrome suites after collecting
+suite, beginner guidance, board cache and height-fit UI suites in actual Google Chrome, using the browser installed on the
+GitHub runner. `tools/run_tests.py` also runs these Chrome suites after collecting
 native Flutter coverage. These browser tests exercise the web renderer; native platform
 settings in widget tests do not establish physical Android or iOS input behavior.
 
@@ -62,7 +64,7 @@ Run the focused checks with the pinned Flutter 3.41.9 SDK:
 
 ```sh
 flutter test test/platform_drag_test.dart
-CHROME_EXECUTABLE=/path/to/google-chrome flutter test --platform chrome test/platform_drag_test.dart test/beginner_guidance_test.dart
+CHROME_EXECUTABLE=/path/to/google-chrome flutter test --platform chrome test/platform_drag_test.dart test/beginner_guidance_test.dart test/board_rendering_regression_test.dart test/board_cache_interaction_test.dart test/board_layout_test.dart
 ```
 
 Flutter 3.41.9 supports the Chrome test backend but labels it deprecated in its
@@ -125,3 +127,43 @@ Rebuild the server WASM with `python3 tools/build_server_core.py` after modifyin
 C++ before running multiplayer tests. `npm test` in `multiplayer` additionally
 checks the production Wrangler bundle; test-only instrumentation and fault
 controls never appear in the deployed Worker.
+
+## Optional performance measurements
+
+Frame measurements require a real profile build rather than the widget test
+renderer. The retained harness uses the actual C++ engine, complete dictionary,
+persistent worker, six continuous touch drags and four human/computer turns:
+
+```sh
+flutter drive -d macos --profile \
+  --target integration_test/performance_test.dart \
+  --driver test_driver/performance_driver.dart
+```
+
+It writes `build/integration_response_data.json`: startup observation, frame
+build/raster/total percentiles, command round trips and a separate JSON decode
+calibration. Preferences are in memory to protect player saves; this does not
+measure real preference disk latency. Frame samples are bounded at 10,000.
+Compare the same SDK, host, viewport, seed and quiet measurement window. This
+opt-in benchmark is separate from CI's deterministic correctness gates: elapsed
+time assertions on shared runners would be unreliable. Physical devices and
+other OS renderers require their own profile runs.
+
+The native dictionary benchmark and matched outputs are described in
+`packages/jot_core/tests/PERFORMANCE.md`. Server/WASM measurements can be rerun
+after building the server core and the Wrangler dry-run bundle:
+
+```sh
+cd multiplayer
+node test/performance-benchmark.mjs --count=40 --hints=12 \
+  --output=../build/server-performance.json
+cd ..
+python3 tools/benchmark_wasm_flags.py --output-dir build/performance-flags
+```
+
+The server harness exercises actual local workerd, authenticated private reads
+and a fixed JAR scoring fixture. Reports contain fingerprints rather than player
+credentials. `benchmark_wasm_flags.py` builds `-O3`, `-O3 -flto` and `-Oz -flto`
+serially and checks unchanged game/hint outputs. Neither command contacts
+production or deploys. Results and measurement limits are in `VERIFICATION.md`
+and `performance/`; they do not establish zero stutter on every device.

@@ -119,3 +119,38 @@ resume reads and game completion.
 The Android debug APK also rebuilt successfully (156 MB, October 8 at 11:21).
 Physical Android gameplay and remote CI were not run; the public browser checks
 and local automated test results do not claim either.
+
+
+## Beginner guidance and performance release — October 8, 2026
+
+This release supersedes the earlier October 8 deployment above.
+
+- Stable public URL: [jot-game.pages.dev](https://jot-game.pages.dev/)
+- Pages deployment: [cb108ca4.jot-game.pages.dev](https://cb108ca4.jot-game.pages.dev/)
+- Worker version: `2879888a-cc9c-48d7-8c7b-fba669511a0f`
+- Runtime source: `fc8eca7`, including the complete board-height fix and retained
+  Cupertino font dependency. Pages upload metadata refers to the earlier local
+  commit because the height fix was present in the working tree during upload.
+
+The web build and Worker were deployed after local verification. Full two-client
+C++ multiplayer smoke tests passed through both the direct Worker URL and the
+stable Pages URL, including authentication, private views, draft isolation,
+turns/revisions, scoring, mutation retries, resume and game completion.
+
+The public UI retained the existing saved board and scores (16 and 134) after
+reload. The next-step card explains the rack refill requirement; the scrollable
+How to play dialog was checked on the public site. At 1,280×720 the entire
+16×16 board is visible. A screenshot is recorded at
+`coverage/screenshots/jot-beginner-public.jpg`.
+
+Local validation passed 240 Flutter tests and 58 actual Chrome UI tests,
+C++ Release/sanitizer suites, browser/server full-dictionary WASM checks and
+actual workerd integration suites. All 24 authored executable runtime files
+passed the combined 100% line-coverage gate. C++ and Flutter branch coverage
+remain below 100%; Dart web source mapping has the documented compiler limits.
+The precise counters, measured performance tradeoffs and physical-device
+validation limits are in `VERIFICATION.md` and `TESTING.md`.
+
+Final macOS release and Flutter web release builds succeeded. The GitHub review
+branch runs Continuous Integration, Build Web and the five-platform production
+build workflow; their run results are linked from the pull request.
