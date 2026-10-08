@@ -81,11 +81,14 @@ class GamePage extends StatefulWidget {
 
 class _GamePageState extends State<GamePage> {
   late final GameController game;
+  late final AppLifecycleListener _lifecycle;
   int? selected;
   @override
   void initState() {
     super.initState();
     game = widget.controller ?? GameController(initialUri: widget.initialUri);
+    _lifecycle = AppLifecycleListener(onStateChange: _onLifecycleChanged);
+    _onLifecycleChanged(WidgetsBinding.instance.lifecycleState);
     if (widget.initialize) {
       unawaited(game.initialize());
     }
@@ -93,8 +96,17 @@ class _GamePageState extends State<GamePage> {
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     game.dispose();
     super.dispose();
+  }
+
+  void _onLifecycleChanged(AppLifecycleState? state) {
+    game.setAppVisible(
+      state != AppLifecycleState.hidden &&
+          state != AppLifecycleState.paused &&
+          state != AppLifecycleState.detached,
+    );
   }
 
   bool get canAct => game.canAct;
@@ -534,14 +546,16 @@ class _GamePageState extends State<GamePage> {
                 builder: (context, box) {
                   final wide = box.maxWidth >= 760;
                   final controls = controlPanel(state);
-                  final board = JotBoard(
-                    state: state,
-                    onTap: canAct ? placeAt : null,
-                    canDrop: canDrop,
-                    onDrop: dropAt,
-                    dragForRack: (rackIndex, letter) =>
-                        dragForRack(rackIndex, assignedLetter: letter),
-                    canDrag: canAct,
+                  final board = RepaintBoundary(
+                    child: JotBoard(
+                      state: state,
+                      onTap: canAct ? placeAt : null,
+                      canDrop: canAct ? canDrop : null,
+                      onDrop: dropAt,
+                      dragForRack: (rackIndex, letter) =>
+                          dragForRack(rackIndex, assignedLetter: letter),
+                      canDrag: canAct,
+                    ),
                   );
                   if (wide) {
                     return Center(
@@ -1186,7 +1200,7 @@ class RackTileFace extends StatelessWidget {
   );
 }
 
-class JotBoard extends StatelessWidget {
+class JotBoard extends StatefulWidget {
   final Map<String, dynamic> state;
   final void Function(int)? onTap;
   final bool Function(RackTileDrag)? canDrop;
@@ -1203,7 +1217,62 @@ class JotBoard extends StatelessWidget {
     this.canDrag = false,
   });
   @override
+  State<JotBoard> createState() => _JotBoardState();
+}
+
+class _JotBoardState extends State<JotBoard> {
+  // Keep at most one visual face per square. Interaction callbacks are built
+  // from the current widget, so cached painting never retains a stale move.
+  final _faceKeys = List<(String, bool, String)?>.filled(256, null);
+  final _faces = List<Widget?>.filled(256, null);
+  final _cellKeys = List<Object?>.filled(256, null);
+  final _cells = List<Widget?>.filled(256, null);
+
+  Widget face(int index, String label, Map? tile) {
+    final key = (label, tile != null, '${tile?['score'] ?? 0}');
+    if (_faceKeys[index] != key) {
+      _faceKeys[index] = key;
+      _faces[index] = Stack(
+        children: [
+          if (label.isNotEmpty)
+            Center(
+              child: FittedBox(
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: ink,
+                      fontSize: tile != null ? 19 : 9,
+                      fontWeight: tile != null
+                          ? FontWeight.w800
+                          : FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (tile != null)
+            Positioned(
+              right: 2,
+              bottom: 0,
+              child: Text(
+                key.$3,
+                style: const TextStyle(fontSize: 7, color: ink),
+              ),
+            ),
+        ],
+      );
+    }
+    return _faces[index]!;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final state = widget.state;
+    final onTap = widget.onTap;
+    final dragForRack = widget.dragForRack;
+    final canDrag = widget.canDrag;
     final board = state['board'] as List;
     final bonuses = state['bonuses'] as List;
     final firstMove = !board.whereType<Map>().any(
@@ -1249,111 +1318,105 @@ class JotBoard extends StatelessWidget {
                         _ => const Color(0xffe9e9de),
                       };
                 final label = tile != null ? tile['letter'] as String : bonus;
-                Widget cell = Semantics(
+                final drag =
+                    tile != null &&
+                        tile['pending'] == true &&
+                        tile['rack'] is int &&
+                        dragForRack != null
+                    ? dragForRack(tile['rack'] as int, label)
+                    : null;
+                final cellKey = (
+                  label,
+                  '${tile?['score'] ?? 0}',
+                  colour,
+                  startSquare,
+                  drag,
+                  drag != null && canDrag,
+                );
+                if (_cellKeys[i] != cellKey) {
+                  _cellKeys[i] = cellKey;
+                  Widget cell = Material(
+                    color: colour,
+                    child: InkWell(
+                      // Read the current callback; this cell may survive turns.
+                      onTap: () => widget.onTap?.call(i),
+                      child: face(i, label, tile),
+                    ),
+                  );
+                  if (drag != null) {
+                    final stagedContents = cell;
+                    cell = LayoutBuilder(
+                      builder: (context, constraints) =>
+                          Draggable<RackTileDrag>(
+                            data: drag,
+                            maxSimultaneousDrags: canDrag ? 1 : 0,
+                            rootOverlay: true,
+                            feedback: SizedBox(
+                              key: const ValueKey('drag-tile-feedback'),
+                              width: constraints.maxWidth,
+                              height: constraints.maxHeight,
+                              child: RackTileFace(tile: tile!, selected: true),
+                            ),
+                            childWhenDragging: Opacity(
+                              opacity: .25,
+                              child: stagedContents,
+                            ),
+                            child: stagedContents,
+                          ),
+                    );
+                  }
+                  final contents = cell;
+                  _cells[i] = DragTarget<RackTileDrag>(
+                    onWillAcceptWithDetails: (details) =>
+                        (widget.state['board'] as List)[i] == null &&
+                        widget.canDrop?.call(details.data) == true,
+                    onAcceptWithDetails: (details) =>
+                        widget.onDrop?.call(details.data, i),
+                    builder: (context, candidates, rejected) => Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        contents,
+                        if (startSquare)
+                          IgnorePointer(
+                            child: Container(
+                              key: ValueKey('first-move-centre-$i'),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: copper, width: 2),
+                              ),
+                            ),
+                          ),
+                        if (candidates.isNotEmpty)
+                          IgnorePointer(
+                            child: Container(
+                              key: ValueKey('drop-highlight-$i'),
+                              decoration: BoxDecoration(
+                                color: copper.withValues(alpha: .2),
+                                border: Border.all(color: copper, width: 2),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                }
+                return Semantics(
                   key: ValueKey('board-cell-$i'),
                   button: onTap != null,
                   excludeSemantics: true,
-                  onTap: onTap == null ? null : () => onTap!(i),
+                  onTap: onTap == null ? null : () => onTap(i),
                   label:
                       'Row ${i ~/ 16 + 1}, column ${i % 16 + 1}, '
                       '${label.isEmpty ? 'empty' : label}',
                   hint: startSquare
                       ? 'Start here: your first word must cover one outlined centre square.'
                       : null,
-                  child: Material(
-                    color: colour,
-                    child: InkWell(
-                      onTap: onTap == null ? null : () => onTap!(i),
-                      child: Stack(
-                        children: [
-                          Center(
-                            child: FittedBox(
-                              child: Padding(
-                                padding: const EdgeInsets.all(2),
-                                child: Text(
-                                  label,
-                                  style: TextStyle(
-                                    color: ink,
-                                    fontSize: tile != null ? 19 : 9,
-                                    fontWeight: tile != null
-                                        ? FontWeight.w800
-                                        : FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (tile != null)
-                            Positioned(
-                              right: 2,
-                              bottom: 0,
-                              child: Text(
-                                '${tile['score'] ?? 0}',
-                                style: const TextStyle(fontSize: 7, color: ink),
-                              ),
-                            ),
-                        ],
-                      ),
+                  child: ExcludeFocus(
+                    excluding: onTap == null,
+                    child: IgnorePointer(
+                      ignoring:
+                          onTap == null && !canDrag && widget.canDrop == null,
+                      child: _cells[i]!,
                     ),
-                  ),
-                );
-                if (tile != null &&
-                    tile['pending'] == true &&
-                    tile['rack'] is int &&
-                    dragForRack != null) {
-                  final stagedContents = cell;
-                  cell = LayoutBuilder(
-                    builder: (context, constraints) => Draggable<RackTileDrag>(
-                      data: dragForRack!(
-                        tile['rack'] as int,
-                        tile['letter'] as String,
-                      ),
-                      maxSimultaneousDrags: canDrag ? 1 : 0,
-                      rootOverlay: true,
-                      feedback: SizedBox(
-                        key: const ValueKey('drag-tile-feedback'),
-                        width: constraints.maxWidth,
-                        height: constraints.maxHeight,
-                        child: RackTileFace(tile: tile, selected: true),
-                      ),
-                      childWhenDragging: Opacity(
-                        opacity: .25,
-                        child: stagedContents,
-                      ),
-                      child: stagedContents,
-                    ),
-                  );
-                }
-                final contents = cell;
-                return DragTarget<RackTileDrag>(
-                  onWillAcceptWithDetails: (details) =>
-                      tile == null && canDrop?.call(details.data) == true,
-                  onAcceptWithDetails: (details) =>
-                      onDrop?.call(details.data, i),
-                  builder: (context, candidates, rejected) => Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      contents,
-                      if (startSquare)
-                        IgnorePointer(
-                          child: Container(
-                            key: ValueKey('first-move-centre-$i'),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: copper, width: 2),
-                            ),
-                          ),
-                        ),
-                      if (candidates.isNotEmpty)
-                        IgnorePointer(
-                          child: Container(
-                            key: ValueKey('drop-highlight-$i'),
-                            decoration: BoxDecoration(
-                              color: copper.withValues(alpha: .2),
-                              border: Border.all(color: copper, width: 2),
-                            ),
-                          ),
-                        ),
-                    ],
                   ),
                 );
               },
