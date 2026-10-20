@@ -1,5 +1,9 @@
 # Jot: C++ engine and Flutter application
 
+New to this repository or Flutter? Start with the
+[repository setup and development guide](../README.md) for installation,
+first-run instructions, a code map, and troubleshooting.
+
 The existing Android and iOS trees remain the reference implementations. The
 Flutter rewrite supports a computer opponent, two players sharing one device,
 and private online games for two players on separate devices.
